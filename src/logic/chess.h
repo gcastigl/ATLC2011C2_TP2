@@ -3,21 +3,14 @@
 
 #include "frontend_interface.h"
 
-#define KING		1
-#define QUEEN		2
-#define ROOK		3
-#define BISHOP		4
-#define KNIGHT		5
-#define PAWN		6
-
-#define TOTAL_TYPES	7
-
 typedef uint8 unsigned char;
 
 typedef enum { false = 0, true } bool;
 
+#define TOTAL_TYPES	7
 /** Types of pieces in Chess **/
-enum piece_type {NONE, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
+enum piece_type {NONE = 0, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
+
 
 /** Amount of pieces of each kind **/
 uint8 amount[TOTAL_TYPES];
@@ -87,7 +80,7 @@ struct movement{
 /**
  * This array of functions contains movement functions for all kinds of pieces.
  */
-bool (*movement_function)(struct piece*, struct movement*)[7];
+bool (*movement_function)(struct piece*, struct movement*)[TOTAL_TYPES];
 
 /** 
  * Game main class
