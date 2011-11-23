@@ -1,5 +1,20 @@
 #include "chess.h"
 
+static bool (*king_movement)(struct piece*, struct movement*);
+static bool (*queen_movement)(struct piece*, struct movement*);
+static bool (*rook_movement)(struct piece*, struct movement*);
+static bool (*bishop_movement)(struct piece*, struct movement*);
+static bool (*knight_movement)(struct piece*, struct movement*);
+static bool (*pawn_movement)(struct piece*, struct movement*);
+
+//TODO: this are all mockup functions
+static bool movement_king(struct piece* piece, struct movement* movement);
+static bool movement_queen(struct piece* piece, struct movement* movement);
+static bool movement_rook(struct piece* piece, struct movement* movement);
+static bool movement_bishop(struct piece* piece, struct movement* movement);
+static bool movement_knight(struct piece* piece, struct movement* movement);
+static bool movement_pawn(struct piece* piece, struct movement* movement);
+
 /**
  * Initialize constant data structures.
  */
@@ -16,6 +31,20 @@ void initialize() {
                    1, 2, 3, 4, 5, 6, 7, 8,
                    4, 5, 1, 8, 3, 6, 2, 7,
                    1, 2, 3, 4, 5, 6, 7, 8};
+
+	king_movement = movement_king;
+    queen_movement = movement_queen;
+    rook_movement = movement_rook;
+    bishop_movement = movement_bishop;
+    knight_movement = movement_knight;
+    pawn_movement = movement_pawn;
+    
+    movement_function[KING] = king_movement;
+    movement_function[QUEEN] = queen_movement;
+    movement_function[ROOK] = rook_movement;
+    movement_function[BISHOP] = bishop_movement;
+    movement_function[KNIGHT] = knight_movement;
+    movement_function[PAWN] = pawn_movement;
 }
 
 /**
@@ -65,68 +94,70 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
         if (piece->alive
             && piece->color == movement->color)
         {
-            bool move_this = true;
-            
-            /** 
-             * This series of checks are for optional movement data
-             */
+            if (movement_function[piece->type](piece, movement)) {
+                bool move_this = true;
+                
+                /** 
+                 * This series of checks are for optional movement data
+                 */
 
-            if (movement->piece_type) {
-                if (piece->type != movement->piece_type) {
-                    move_this = false;
+                if (movement->piece_type) {
+                    if (piece->type != movement->piece_type) {
+                        move_this = false;
+                    }
                 }
-            }
-            if (move_this && movement->from_col) {
-                if (movement->from_col != piece->col) {
-                    move_this = false;
+                if (move_this && movement->from_col) {
+                    if (movement->from_col != piece->col) {
+                        move_this = false;
+                    }
                 }
-            }
-            if (move_this && movement->from_row) {
-                if (movement->from_row != piece->row) {
-                    move_this = false;
+                if (move_this && movement->from_row) {
+                    if (movement->from_row != piece->row) {
+                        move_this = false;
+                    }
                 }
-            }
 
-            /**
-             * If the checks succeded, then this is the piece we need to move
-             */
-            if (move_this) {
+                /**
+                 * If the checks succeded, then this is the piece we need to move
+                 */
+                if (move_this) {
 
-                if (moved) {
+                    if (moved) {
 
-                    /** Error: already moved with this movement **/
-                    return false;
+                        /** Error: already moved with this movement **/
+                        return false;
 
-                } else {
+                    } else {
 
-                    moved = true;
+                        moved = true;
 
-                    /** Capture logic **/
-                    if (movement->captures) {
-                        for (int j = 0; j < 32; j++) if (j != i) {
-                            struct piece* captured = gameboard->piece[j];
+                        /** Capture logic **/
+                        if (movement->captures) {
+                            for (int j = 0; j < 32; j++) if (j != i) {
+                                struct piece* captured = gameboard->piece[j];
 
-                            if (captured->alive &&
-                                captured->row == movement->row &&
-                                captured->col == movement->col) {
-                                
-                                captured->alive = false;
+                                if (captured->alive &&
+                                    captured->row == movement->row &&
+                                    captured->col == movement->col) {
+                                    
+                                    captured->alive = false;
+                                }
                             }
+                            frontend_process_capture(gameboard, captured);
                         }
-                        frontend_process_capture(gameboard, captured);
+
+                        /** Crowning **/
+                        if (movement->crown_type != NONE) {
+                            
+                            piece->type = movement->crown_type;
+                        }
+
+                        /** Move logic **/
+                        frontend_process_move(gameboard, piece, movement);
+
+                        piece->row = movement->row;
+                        piece->col = movement->col;
                     }
-
-                    /** Crowning **/
-                    if (movement->crown_type != NONE) {
-                        
-                        piece->type = movement->crown_type;
-                    }
-
-                    /** Move logic **/
-                    frontend_process_move(gameboard, piece, movement);
-
-                    piece->row = movement->row;
-                    piece->col = movement->col;
                 }
             }
         }
