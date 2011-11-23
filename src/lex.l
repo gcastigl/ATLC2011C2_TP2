@@ -17,6 +17,13 @@ void yyerror(char* s);
 
 %}
 
+EOL	(\n|\r\n|\l\n)
+WHITESPACE	(\n|\r\n|\l\n|[ ])
+COL	[a-h]
+COLORCAP	[a-fx]
+ROW	[1-8]
+PC	[BNRQK]
+
 %x SITE
 %x DATE
 %x WHITE
@@ -33,14 +40,14 @@ void yyerror(char* s);
 "[Event \""		{ yylval.num = EVENT_TOK; return (INITIAL_TOKEN);}
 [^"\?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
 [?]+					{yylval.string= NULL; return (STRING);}
-"\"]\n"					{BEGIN SITE; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN SITE; return (END_TOKEN);}
 }
 
 <SITE>{
 "[Site \""		{ yylval.num = SITE_TOK; return (INITIAL_TOKEN);}
 [^"\?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
 [\?]+					{yylval.string= NULL; return (STRING);}
-"\"]\n"					{BEGIN DATE; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN DATE; return (END_TOKEN);}
 }
 
 <DATE>{
@@ -48,7 +55,7 @@ void yyerror(char* s);
 [0-9]+	{yylval.num = atoi(yytext);return (INTEGER);	}
 [\?]+	{yylval.num = -1; return (INTEGER);}
 "."		{return *yytext;}
-"\"]\n"					{BEGIN ROUND_S; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN ROUND_S; return (END_TOKEN);}
 
 }
 
@@ -56,7 +63,7 @@ void yyerror(char* s);
 "[Round \""		{ return (INITIAL_ROUND_TOKEN);}
 [0-9]+	{yylval.num = atoi(yytext);return (INTEGER);	}
 [\?]+	{yylval.num = -1; return (INTEGER);}
-"\"]\n"					{BEGIN WHITE; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN WHITE; return (END_TOKEN);}
 
 }
 
@@ -65,14 +72,14 @@ void yyerror(char* s);
 "[White \""		{ yylval.num = WHITE_TOK; return (INITIAL_TOKEN);}
 [^"?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
 [?]+					{yylval.string= NULL; return (STRING);}
-"\"]\n"					{BEGIN BLACK; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN BLACK; return (END_TOKEN);}
 }
 
 <BLACK>{
 "[Black \""		{ yylval.num = BLACK_TOK; return (INITIAL_TOKEN);}
 [^"?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
 [?]+					{yylval.string= NULL; return (STRING);}
-"\"]\n"					{BEGIN RESULT; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN RESULT; return (END_TOKEN);}
 }
 
 <RESULT>{
@@ -81,23 +88,23 @@ void yyerror(char* s);
 "1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
 "1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
 [?]+	{yylval.ch = -1; return (FINALRESULT);}
-"\"]\n"					{BEGIN GAME_PRE; return (END_TOKEN);}
+"\"]"{EOL}					{BEGIN GAME_PRE; return (END_TOKEN);}
 
 }
-<GAME_PRE>\n	{BEGIN GAME;}
+<GAME_PRE>{EOL}	{BEGIN GAME;}
 
 <GAME>{
-[0-9]+\./[ \n]	{yylval.num = atoi(yytext);return (ROUND);	}
-[BNRQK]/[a-hx]		{yylval.pc.piece = *yytext;  yylval.pc.src.col = 0; yylval.pc.src.row = 0;return (PIECE);}
-[BNRQK][a-h]/[a-hx]		{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1]; yylval.pc.src.row = 0; return (PIECE);}
-[BNRQK][1-8]/[a-hx]		{yylval.pc.piece = *yytext; yylval.pc.src.row = yytext[1] - '0'; yylval.pc.src.col = 0; return (PIECE);}
-[BNRQK][a-h][1-8]/[a-hx]	{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1];yylval.pc.src.row = yytext[2] - '0'; return (PIECE);}
-[a-h]/[a-hx]				{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = 0; return (PIECE);}
-[1-8]/[a-hx]				{yylval.pc.piece = 'P'; yylval.pc.src.row = yytext[0] - '0'; yylval.pc.src.col = 0;return (PIECE);}
-[a-h][1-8]/[a-hx]			{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = yytext[0] - '0';return (PIECE);}
-[a-h][1-8]/[ \n]			{yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
+[0-9]+\./{WHITESPACE}	{yylval.num = atoi(yytext);return (ROUND);	}
+{PC}/{COLORCAP}		{yylval.pc.piece = *yytext;  yylval.pc.src.col = 0; yylval.pc.src.row = 0;return (PIECE);}
+{PC}{COL}/{COLORCAP}		{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1]; yylval.pc.src.row = 0; return (PIECE);}
+{PC}{ROW}/{COLORCAP}		{yylval.pc.piece = *yytext; yylval.pc.src.row = yytext[1] - '0'; yylval.pc.src.col = 0; return (PIECE);}
+{PC}{COL}{ROW}/{COLORCAP}	{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1];yylval.pc.src.row = yytext[2] - '0'; return (PIECE);}
+{COL}/{COLORCAP}				{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = 0; return (PIECE);}
+{ROW}/{COLORCAP}				{yylval.pc.piece = 'P'; yylval.pc.src.row = yytext[0] - '0'; yylval.pc.src.col = 0;return (PIECE);}
+{COL}{ROW}/{COLORCAP}			{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = yytext[0] - '0';return (PIECE);}
+{COL}{ROW}/{WHITESPACE}			{yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
 							yylval.tgt.check = 0; yylval.tgt.checkmate = 0; return (TARGET);}
-[a-h][1-8][+#]			{
+{COL}{ROW}[+#]			{
 						yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
 						yylval.tgt.check = 0; yylval.tgt.checkmate = 0;
 						if(yytext[2] == '+')
@@ -111,8 +118,7 @@ void yyerror(char* s);
 "0-1" {yylval.ch = BLACK_WINS; return (FINALRESULT);}
 "1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
 "1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
-"\n" {return (SPACE);}
-" " {return (SPACE);}
+{WHITESPACE} {return (SPACE);}
 "x"		{return (CAPTURE);}
 
 
