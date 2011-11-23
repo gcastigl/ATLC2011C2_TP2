@@ -236,6 +236,8 @@ struct move get_move( struct piece piece, struct target tgt){
 	ret.shcastle = 0;
 	ret.pc = piece;
 	ret.tgt = tgt;
+	if(ret.pc.piece != 'P' && ret.tgt.crowned != 0) 
+		yyerror("Parsing error, piece which isnt a pawn has been crowned\n");
 	return ret;
 
 

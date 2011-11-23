@@ -103,14 +103,20 @@ PC	[BNRQK]
 {ROW}/{COLORCAP}				{yylval.pc.piece = 'P'; yylval.pc.src.row = yytext[0] - '0'; yylval.pc.src.col = 0;return (PIECE);}
 {COL}{ROW}/{COLORCAP}			{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = yytext[0] - '0';return (PIECE);}
 {COL}{ROW}/{WHITESPACE}			{yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
-							yylval.tgt.check = 0; yylval.tgt.checkmate = 0; return (TARGET);}
+							yylval.tgt.check = 0; yylval.tgt.checkmate = 0; yylval.tgt.crowned = 0; return (TARGET);}
 {COL}{ROW}[+#]			{
 						yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
-						yylval.tgt.check = 0; yylval.tgt.checkmate = 0;
+						yylval.tgt.check = 0; yylval.tgt.checkmate = 0; yylval.tgt.crowned = 0;
 						if(yytext[2] == '+')
 							yylval.tgt.check = 1;
 						else
 							yylval.tgt.checkmate = 1;
+						return (TARGET);
+						}
+{COL}{ROW}={PC}			{
+						yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
+						yylval.tgt.check = 0; yylval.tgt.checkmate = 0;
+						yylval.tgt.crowned = yytext[3];
 						return (TARGET);
 						}
 "O-O"		{return (SHORTCASTLE); printf("Found short");}
