@@ -11,15 +11,6 @@
 #define YYERROR 1
 
 int yylex(void);
-%}
-
-%union { int num; char * string; }
-%token UNKOWN
-%token DRAW
-%token <num> INTEGER
-%token <string> STRING
-%type <string> STR
-%type <num> NUM
 
 struct options {
 	char * event_name;
@@ -33,71 +24,114 @@ struct options {
 	int result;
 } opts;
 
+%}
+
+%union { int num; char * string; }
+%token <num> UNKNOWN
+%token <num> DRAW
+%token <num> INTEGER
+%token <string> STRING
+
+%type <string> program
+%type <string> opts1
+%type <string> opts2
+%type <string> opts3
+%type <string> opts4
+%type <string> opts5
+%type <string> opts6
+%type <string> event
+%type <string> site
+%type <string> date
+%type <string> round
+%type <string> white
+%type <string> black
+%type <string> result
+%type <num> res;
+%type <num> datecomp;
+
+
 %%
 
 program:
 	event opts1
+	;
 opts1:
 	site opts2
+	;
 opts2:
 	date opts3
+	;
 opts3:
 	round opts4
+	;
 opts4:
 	white opts5
+	;
 opts5:
 	black opts6
+	;
 opts6:
 	result game
+	;
 
 event:
-	'[' 'E' 'v' 'e' 'n' 't' ' ' STR ']' '\n' { int len = strlen($1) - 2;
+	'[' 'E' 'v' 'e' 'n' 't' ' ' STRING ']' '\n' { int len = strlen($8) - 2;
 														opts.event_name = malloc(len);
-														memcpy(opts.event_name, $1 + 1, len); }
+														memcpy(opts.event_name, $8 + 1, len); }
+	;
 site:
-	'[' 'S' 'i' 't' 'e' ' ' STR ']' '\n' { int len = strlen($1) - 2;
+	'[' 'S' 'i' 't' 'e' ' ' STRING ']' '\n' { int len = strlen($7) - 2;
 														opts.site_name = malloc(len);
-														memcpy(opts.site_name, $1 + 1, len); }
+														memcpy(opts.site_name, $7 + 1, len); }
+	;
 white:
-	'[' 'W' 'h' 'i' 't' 'e' ' ' STR ']' '\n' { int len = strlen($1) - 2;
+	'[' 'W' 'h' 'i' 't' 'e' ' ' STRING ']' '\n' { int len = strlen($8) - 2;
 														opts.white_player = malloc(len);
-														memcpy(opts.white_player, $1 + 1, len); }
+														memcpy(opts.white_player, $8 + 1, len); }
+	;
 black:
-	'[' 'B' 'l' 'a' 'c' 'k' ' ' STR ']' '\n' { int len = strlen($1) - 2;
+	'[' 'B' 'l' 'a' 'c' 'k' ' ' STRING ']' '\n' { int len = strlen($8) - 2;
 														opts.black_player = malloc(len);
-														memcpy(opts.black_player, $1 + 1, len); }
+														memcpy(opts.black_player, $8 + 1, len); }
+	;
 date:
 	'[' 'D' 'a' 't' 'e' ' ' '"' datecomp '/' datecomp '/' datecomp '"' ']' '\n' {
-																				opts.day = $3; opts.month = $2; opts.year = $1;
-																				if(!date_is_valid(opts)){
-																					yyerror("Date is invalid!\n");
-																					return YYERROR;
+																					opts.day = $8; opts.month = $10; opts.year = $12;
+																					if(!date_is_valid(opts)){
+																						yyerror("Date is invalid!\n");
+																						return YYERROR;
+																					}
 																				}
+	;
 datecomp:
-	INT		{$$ = $1;}
+	INTEGER		{$$ = $1;}
 	| UNKNOWN	{$$ = -1;}
+	;
 round:
-	'[' 'R' 'o' 'u' 'n' 'd' ' ' STR ']' '\n' { int val = atoi($1 + 1);
+	'[' 'R' 'o' 'u' 'n' 'd' ' ' STRING ']' '\n' { int val = atoi($8 + 1);
 												if(atoi == 0) {
 													yyerror("Invalid round format!\n");
 													return YYERROR;
 												}
 											}
+	;
 result:
-	'[' 'R' 'e' 's' 'u' 'l' 't' ' ' '"' res '"' ']' '\n' {opts.result = res;
+	'[' 'R' 'e' 's' 'u' 'l' 't' ' ' '"' res '"' ']' '\n' {opts.result = $10;
 															if(res == ERROR ) {
 																yyerror("Result is invalid!\n");
 																return YYERROR;
 															}
 														}
+	;
 res:
 	DRAW '-' DRAW { $$ = DRAW;}
-	| INT '-' INT { $$ = get_result( $1, $2 );}
+	| INTEGER '-' INTEGER { $$ = get_result( $1, $3 );}
+	;
 
 //TODO falta la gramatica de game! por ahora la hago anulable y testeemos el resto....
 
 game:
-
+	;
 %%
 
 int date_is_valid ( struct options opts ) {
