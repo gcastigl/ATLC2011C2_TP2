@@ -14,6 +14,8 @@
 
 typedef uint8 unsigned char;
 
+typedef enum { false = 0, true } bool;
+
 /** Types of pieces in Chess **/
 enum piece_type {NONE, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
 
