@@ -76,6 +76,13 @@ date:
 datecomp:
 	INT		{$$ = $1;}
 	| UNKNOWN	{$$ = -1;}
+round:
+	'[' 'R' 'o' 'u' 'n' 'd' ' ' STR ']' '\n' { int val = atoi($1 + 1);
+												if(atoi == 0) {
+													yyerror("Invalid round format!\n");
+													return YYERROR;
+												}
+											}
 result:
 	'[' 'R' 'e' 's' 'u' 'l' 't' ' ' '"' res '"' ']' '\n' {opts.result = res;
 															if(res == ERROR ) {
