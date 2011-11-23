@@ -85,21 +85,26 @@ void yyerror(char* s);
 }
 
 
-<GAME>[0-9]+\.	{yylval.num = atoi(yytext);return (ROUND);	}
-<GAME>[BNRQK]	{yylval.ch = *yytext; return (PIECE);}
-<GAME>[1-8]		{yylval.ch = *yytext; return (ROW);}
-<GAME>[a-h]		{yylval.ch = *yytext; return (COL);}
-<GAME>[x]		{return (CAPTURE);}
-<GAME>0-0		{return (SHORTCASTLE);}
-<GAME>0-0-0		{return (LONGCASTLE);}
-<GAME>"+"		{return (CHECK);}
-<GAME>"#"		{return (CHECKMATEMOTHERFUCKER);}
-<GAME>"0-1" {yylval.ch = BLACK_WINS; return (FINALRESULT);}
-<GAME>"1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
-<GAME>"1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
-<GAME>"\n" {;}
-<GAME>" " {return *yytext;}
-<GAME>.			{/*Not parsing yet, pass*/ ; }
+<GAME>{
+[0-9]+\./[ ]	{yylval.num = atoi(yytext);return (ROUND);	}
+[BNRQK][a-g]/[a-gx]
+[BNRQK][a-g]/[a-gx]
+[BNRQK][a-g][1-8]/[a-gx]			
+[a-g]/[a-gx]
+[a-g]/[a-gx]
+[a-g][1-8]/[a-gx]			
+[a-g][1-8]/[ ]		
+[a-g][1-8][+#]		
+0-0		{return (SHORTCASTLE);}
+0-0-0		{return (LONGCASTLE);}
+"0-1" {yylval.ch = BLACK_WINS; return (FINALRESULT);}
+"1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
+"1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
+"\n" {;}
+" " {return *yytext;}
+
+
+}
 
 %%
 
