@@ -87,20 +87,30 @@ void yyerror(char* s);
 
 <GAME>{
 [0-9]+\./[ ]	{yylval.num = atoi(yytext);return (ROUND);	}
-[BNRQK][a-g]/[a-gx]
-[BNRQK][a-g]/[a-gx]
-[BNRQK][a-g][1-8]/[a-gx]			
-[a-g]/[a-gx]
-[a-g]/[a-gx]
-[a-g][1-8]/[a-gx]			
-[a-g][1-8]/[ ]		
-[a-g][1-8][+#]		
+[BNRQK][a-g]/[a-gx]		{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1]; return (PIECE);}
+[BNRQK][1-8]/[a-gx]		{yylval.pc.piece = *yytext; yylval.pc.src.row = yytext[1] - '0'; return (PIECE);}
+[BNRQK][a-g][1-8]/[a-gx]	{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1];yylval.pc.src.row = yytext[2] - '0'; return (PIECE);}
+[a-g]/[a-gx]				{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; return (PIECE);}
+[1-8]/[a-gx]				{yylval.pc.piece = 'P'; yylval.pc.src.row = yytext[0] - '0'; return (PIECE);}
+[a-g][1-8]/[a-gx]			{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = yytext[0] - '0';return (PIECE);}
+[a-g][1-8]/[ ]			{yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
+							yylval.tgt.check = 0; yylval.tgt.checkmate = 0; return (TARGET);}
+[a-g][1-8][+#]			{
+						yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
+						yylval.tgt.check = 0; yylval.tgt.checkmate = 0;
+						if(yytext[2] == '+')
+							yylval.tgt.check = 1;
+						else
+							yylval.tgt.checkmate = 1;
+						return (TARGET);
+						}
 0-0		{return (SHORTCASTLE);}
 0-0-0		{return (LONGCASTLE);}
 "0-1" {yylval.ch = BLACK_WINS; return (FINALRESULT);}
 "1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
 "1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
 "\n" {;}
+"x"		{return (CAPTURE);}
 " " {return *yytext;}
 
 
