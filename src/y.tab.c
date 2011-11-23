@@ -129,7 +129,22 @@ void yyerror(char * s){
 	return;
 }
 
+//Debugging purposes
+
+void print_options( struct options o ) {
+	printf("Event: %s\n", o.event_name);
+	printf("Site: %s\n", o.site_name);
+	printf("White Player: %s\n", o.white_player);
+	printf("Black Player: %s\n", o.black_player);
+	printf("Round: %d\n", o.round);
+	printf("Year: %d, Month: %d, Day: %d\n" o.year, o,month, o.days);
+	printf("Result: %d\n", o.result);
+	
+	
+}
+
 int main( void ) {
 	yyparse();
+	print_options(opts);
 	return 0;
 }

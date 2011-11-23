@@ -5,6 +5,8 @@
 
 int num_opts = 0;
 
+void yyerror(char*);
+
 %s GAME
 %s 
 
