@@ -47,6 +47,21 @@ struct piece {
     uint8 col, row;
 };
 
+#define IS_WHITE(piece) 			(1 <= piece->id && piece->id <= 16)
+#define IS_BLACK(piece) 			!(IS_WHITE(piece))
+
+#define IS_KING(piece)				(piece->id == 1)
+#define IS_QUEEN(piece)				(piece->id == 2)
+#define IS_ROOK(piece)				(piece->id == 3 || piece->id == 4)
+
+#define IS_BISHOP(piece)			(piece->id == 5 || piece->id == 6)
+#define IS_BISHOP_WHITE(piece)		(piece->id == 5)
+#define IS_BISHOP_BLACK(piece)		(piece->id == 6)
+
+#define IS_KNIGHT(piece)			(piece->id == 7 || piece->id == 8)
+#define IS_KNIGHT_WHITE(piece)		(piece->id == 7)
+#define IS_KNIGHT_BLACK(piece)		(piece->id == 8)
+
 /**
  * A structure describing a movement. Mandatory fields are: color, col, row.
  * The other fields are only necesary in order to solve ambiguous movements.
