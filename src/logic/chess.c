@@ -25,12 +25,12 @@ void initialize() {
                    4, 5, 1, 8, 3, 6, 2, 7,
                    1, 2, 3, 4, 5, 6, 7, 8};
 
-    movement_function[1] = king_movement;
-    movement_function[2] = queen_movement;
-    movement_function[3] = rook_movement;
-    movement_function[4] = bishop_movement;
-    movement_function[5] = knight_movement;
-    movement_function[6] = pawn_movement;
+    movement_function[KING] = king_movement;
+    movement_function[QUEEN] = queen_movement;
+    movement_function[ROOK] = rook_movement;
+    movement_function[BISHOP] = bishop_movement;
+    movement_function[KNIGHT] = knight_movement;
+    movement_function[PAWN] = pawn_movement;
 }
 
 /**
