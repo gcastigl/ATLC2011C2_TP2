@@ -1,12 +1,19 @@
 #include "chess.h"
 
-/** TODO: Implement these. **/
 static bool (*king_movement)(struct piece*, struct movement*);
 static bool (*queen_movement)(struct piece*, struct movement*);
 static bool (*rook_movement)(struct piece*, struct movement*);
 static bool (*bishop_movement)(struct piece*, struct movement*);
 static bool (*knight_movement)(struct piece*, struct movement*);
 static bool (*pawn_movement)(struct piece*, struct movement*);
+
+//TODO: this are all mockup functions
+static bool movement_king(struct piece* piece, struct movement* movement);
+static bool movement_queen(struct piece* piece, struct movement* movement);
+static bool movement_rook(struct piece* piece, struct movement* movement);
+static bool movement_bishop(struct piece* piece, struct movement* movement);
+static bool movement_knight(struct piece* piece, struct movement* movement);
+static bool movement_pawn(struct piece* piece, struct movement* movement);
 
 /**
  * Initialize constant data structures.
@@ -25,6 +32,13 @@ void initialize() {
                    4, 5, 1, 8, 3, 6, 2, 7,
                    1, 2, 3, 4, 5, 6, 7, 8};
 
+	king_movement = movement_king;
+    queen_movement = movement_queen;
+    rook_movement = movement_rook;
+    bishop_movement = movement_bishop;
+    knight_movement = movement_knight;
+    pawn_movement = movement_pawn;
+    
     movement_function[KING] = king_movement;
     movement_function[QUEEN] = queen_movement;
     movement_function[ROOK] = rook_movement;
@@ -155,5 +169,27 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
     return true;
 }
 
-#endif
+static bool movement_king(struct piece* piece, struct movement* movement) {
+	return true;
+}
+
+static bool movement_queen(struct piece* piece, struct movement* movement) {
+	return true;
+}
+
+static bool movement_rook(struct piece* piece, struct movement* movement) {
+	return true;
+}
+
+static bool movement_bishop(struct piece* piece, struct movement* movement) {
+	return true;
+}
+
+static bool movement_knight(struct piece* piece, struct movement* movement) {
+	return true;
+}
+
+static bool movement_pawn(struct piece* piece, struct movement* movement) {
+	return true;
+}
 

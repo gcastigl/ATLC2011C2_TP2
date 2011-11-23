@@ -63,6 +63,7 @@ struct piece {
  */
 struct movement{
     enum color color;
+    /** This is the new position that the piece should have after the movement **/
     uint8 col, row;
 
     /** Optional data **/
