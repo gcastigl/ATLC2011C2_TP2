@@ -24,6 +24,7 @@ void yyerror(char* s);
 %x ROUND_S
 %x RESULT
 %x GAME
+%x GAME_PRE
 
 %%
 
@@ -80,22 +81,23 @@ void yyerror(char* s);
 "1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
 "1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
 [?]+	{yylval.ch = -1; return (FINALRESULT);}
-"\"]\n"					{BEGIN GAME; return (END_TOKEN);}
+"\"]\n"					{BEGIN GAME_PRE; return (END_TOKEN);}
 
 }
-
+<GAME_PRE>\n	{BEGIN GAME;}
 
 <GAME>{
-[0-9]+\./[ ]	{yylval.num = atoi(yytext);return (ROUND);	}
-[BNRQK][a-g]/[a-gx]		{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1]; return (PIECE);}
-[BNRQK][1-8]/[a-gx]		{yylval.pc.piece = *yytext; yylval.pc.src.row = yytext[1] - '0'; return (PIECE);}
-[BNRQK][a-g][1-8]/[a-gx]	{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1];yylval.pc.src.row = yytext[2] - '0'; return (PIECE);}
-[a-g]/[a-gx]				{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; return (PIECE);}
-[1-8]/[a-gx]				{yylval.pc.piece = 'P'; yylval.pc.src.row = yytext[0] - '0'; return (PIECE);}
-[a-g][1-8]/[a-gx]			{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = yytext[0] - '0';return (PIECE);}
-[a-g][1-8]/[ ]			{yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
+[0-9]+\./[ \n]	{yylval.num = atoi(yytext);return (ROUND);	}
+[BNRQK]/[a-hx]		{yylval.pc.piece = *yytext;  yylval.pc.src.col = 0; yylval.pc.src.row = 0;return (PIECE);}
+[BNRQK][a-h]/[a-hx]		{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1]; yylval.pc.src.row = 0; return (PIECE);}
+[BNRQK][1-8]/[a-hx]		{yylval.pc.piece = *yytext; yylval.pc.src.row = yytext[1] - '0'; yylval.pc.src.col = 0; return (PIECE);}
+[BNRQK][a-h][1-8]/[a-hx]	{yylval.pc.piece = *yytext; yylval.pc.src.col = yytext[1];yylval.pc.src.row = yytext[2] - '0'; return (PIECE);}
+[a-h]/[a-hx]				{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = 0; return (PIECE);}
+[1-8]/[a-hx]				{yylval.pc.piece = 'P'; yylval.pc.src.row = yytext[0] - '0'; yylval.pc.src.col = 0;return (PIECE);}
+[a-h][1-8]/[a-hx]			{yylval.pc.piece = 'P'; yylval.pc.src.col = yytext[0]; yylval.pc.src.row = yytext[0] - '0';return (PIECE);}
+[a-h][1-8]/[ \n]			{yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
 							yylval.tgt.check = 0; yylval.tgt.checkmate = 0; return (TARGET);}
-[a-g][1-8][+#]			{
+[a-h][1-8][+#]			{
 						yylval.tgt.dst.col = yytext[0]; yylval.tgt.dst.row = yytext[1] - '0';
 						yylval.tgt.check = 0; yylval.tgt.checkmate = 0;
 						if(yytext[2] == '+')
@@ -104,14 +106,14 @@ void yyerror(char* s);
 							yylval.tgt.checkmate = 1;
 						return (TARGET);
 						}
-0-0		{return (SHORTCASTLE);}
-0-0-0		{return (LONGCASTLE);}
+"O-O"		{return (SHORTCASTLE); printf("Found short");}
+"O-O-O"		{return (LONGCASTLE);}
 "0-1" {yylval.ch = BLACK_WINS; return (FINALRESULT);}
 "1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
 "1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
-"\n" {;}
+"\n" {return (SPACE);}
+" " {return (SPACE);}
 "x"		{return (CAPTURE);}
-" " {return *yytext;}
 
 
 }

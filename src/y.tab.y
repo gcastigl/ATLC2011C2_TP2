@@ -36,6 +36,7 @@ int handle_play( int round, struct move white, struct move black, int result);
 int handle_short_play( int round, struct move white,  int result);
 struct move get_move( struct piece piece, struct target tgt);
 struct move get_castle_move ( int is_long);
+struct move get_pawn_move ( struct target tgt);
 void print_play ( struct play * play);
 
 %}
@@ -59,6 +60,7 @@ void print_play ( struct play * play);
 %token <num> END_TOKEN
 %token <tgt> TARGET
 %token <pc> PIECE
+%token <num> SPACE
 
 %type <string> program
 %type <string> game
@@ -97,14 +99,16 @@ option:
 game:
 	play game		{;}
 	| FINALRESULT		{;}
+	| {;}
 	;
 play:
-	ROUND  ' ' move ' ' move ' '		{handle_play($1, $3, $5, 0);}
-	| ROUND ' ' move ' ' FINALRESULT	{handle_short_play($1, $3,  $5);}
+	ROUND  SPACE move SPACE move SPACE		{handle_play($1, $3, $5, 0);}
+	| ROUND SPACE move SPACE FINALRESULT	{handle_short_play($1, $3,  $5);}
 	;
 move:
 	PIECE TARGET					{ $$ = get_move( $1, $2);}
 	| PIECE CAPTURE TARGET		{ $$ = get_move ( $1, $3);}
+	| TARGET					{ $$ = get_pawn_move ( $1);}
 	| SHORTCASTLE						{ $$ = get_castle_move (0);}
 	| LONGCASTLE						{ $$ = get_castle_move (1);}
 
@@ -120,18 +124,18 @@ void print_move ( struct move * move) {
 		printf("0-0-0");
 		return;
 	}
-	printf("From: %c%c,%d To: %c,%d", move->pc.piece, move->pc.src.col, move->pc.src.row, move->tgt.dst.col, move->tgt.dst.row);
+	printf("From: %c%c,%d To: %c,%d", move->pc.piece, move->pc.src.col == 0 ? '0' : move->pc.src.col, move->pc.src.row, move->tgt.dst.col, move->tgt.dst.row);
 	
 
 }
 
 void print_play ( struct play * play ) {
 
-	printf("--------------------------");
+	printf("--------------------------\n");
 	printf("Round %d\n", play->round);
 	printf("White: ");print_move(&(play->white));
 	printf("Black: ");print_move(&(play->black));
-	
+	printf("\n");
 
 }
 
@@ -179,6 +183,17 @@ int get_result ( int white, int  black ) {
 	
 }
 
+struct move get_pawn_move ( struct target tgt) {
+
+	struct move ret;
+	ret.pc.piece = 'P';
+	ret.pc.src.col = 0;
+	ret.pc.src.row = 0;
+	ret.tgt = tgt;
+	return ret;
+
+}
+
 int wrap_handle_play ( int round, struct move white, struct move black, int result, int is_short) {
 
 	if(round != curr_round + 1){
@@ -188,6 +203,7 @@ int wrap_handle_play ( int round, struct move white, struct move black, int resu
 		return YYENDERROR;
 	}
 	struct play * pl = &plays[curr_round];
+	pl->round = round;
 	pl-> white = white;
 	if(!is_short)
 		pl-> black = black;
@@ -200,14 +216,14 @@ int wrap_handle_play ( int round, struct move white, struct move black, int resu
 
 int handle_play( int round, struct move white, struct move black, int result){
 
-	return wrap_handle_play ( round, white, black, result, 1);
+	return wrap_handle_play ( round, white, black, result, 0);
 
 
 }
 
 int handle_short_play( int round, struct move white, int result){
 
-	return wrap_handle_play( round, white, white, result, 0); 
+	return wrap_handle_play( round, white, white, result, 1); 
 
 
 }
