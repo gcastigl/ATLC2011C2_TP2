@@ -5,11 +5,15 @@
 
 typedef uint8 unsigned char;
 
+typedef enum { false = 0, true } bool;
+
+#define TOTAL_TYPES	7
 /** Types of pieces in Chess **/
-enum piece_type {NONE, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
+enum piece_type {NONE = 0, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
+
 
 /** Amount of pieces of each kind **/
-uint8 amount[7];
+uint8 amount[TOTAL_TYPES];
 
 /** Initial row & col positions for the pieces **/
 uint8 initial_row[32];
@@ -34,7 +38,24 @@ struct piece {
     enum piece_type type;
     enum color color;
     uint8 col, row;
+    // useful for PAWNS, then can move 2 steps only the first time they move.
+    uint8 movments;
 };
+
+#define IS_WHITE(piece) 			(1 <= piece->id && piece->id <= 16)
+#define IS_BLACK(piece) 			!(IS_WHITE(piece))
+
+#define IS_KING(piece)				(piece->id == 1)
+#define IS_QUEEN(piece)				(piece->id == 2)
+#define IS_ROOK(piece)				(piece->id == 3 || piece->id == 4)
+
+#define IS_BISHOP(piece)			(piece->id == 5 || piece->id == 6)
+#define IS_BISHOP_WHITE(piece)		(piece->id == 5)
+#define IS_BISHOP_BLACK(piece)		(piece->id == 6)
+
+#define IS_KNIGHT(piece)			(piece->id == 7 || piece->id == 8)
+#define IS_KNIGHT_WHITE(piece)		(piece->id == 7)
+#define IS_KNIGHT_BLACK(piece)		(piece->id == 8)
 
 /**
  * A structure describing a movement. Mandatory fields are: color, col, row.
@@ -42,7 +63,7 @@ struct piece {
  */
 struct movement{
     enum color color;
-    uint8 col, uint8 row;
+    uint8 col, row;
 
     /** Optional data **/
     enum piece_type piece_type;
@@ -59,7 +80,7 @@ struct movement{
 /**
  * This array of functions contains movement functions for all kinds of pieces.
  */
-bool (*movement_function)(struct piece*, struct movement*)[7];
+bool (*movement_function)(struct piece*, struct movement*)[TOTAL_TYPES];
 
 /** 
  * Game main class
