@@ -1,16 +1,18 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define WHITE_WINS 1
-#define DRAW 2
+#define DRAW_GAME 2
 #define BLACK_WINS 3
 
 #define ERROR -1
 
-#define YYERROR 1
+#define YYENDERROR 1
 
 int yylex(void);
+void yyerror(char * s);
 
 struct options {
 	char * event_name;
@@ -99,7 +101,7 @@ date:
 																					opts.day = $8; opts.month = $10; opts.year = $12;
 																					if(!date_is_valid(opts)){
 																						yyerror("Date is invalid!\n");
-																						return YYERROR;
+																						return YYENDERROR;
 																					}
 																				}
 	;
@@ -111,20 +113,20 @@ round:
 	'[' 'R' 'o' 'u' 'n' 'd' ' ' STRING ']' '\n' { int val = atoi($8 + 1);
 												if(atoi == 0) {
 													yyerror("Invalid round format!\n");
-													return YYERROR;
+													return YYENDERROR;
 												}
 											}
 	;
 result:
 	'[' 'R' 'e' 's' 'u' 'l' 't' ' ' '"' res '"' ']' '\n' {opts.result = $10;
-															if(res == ERROR ) {
+															if(opts.result == ERROR ) {
 																yyerror("Result is invalid!\n");
-																return YYERROR;
+																return YYENDERROR;
 															}
 														}
 	;
 res:
-	DRAW '-' DRAW { $$ = DRAW;}
+	DRAW '-' DRAW { $$ = DRAW_GAME;}
 	| INTEGER '-' INTEGER { $$ = get_result( $1, $3 );}
 	;
 
@@ -138,7 +140,7 @@ int date_is_valid ( struct options opts ) {
 	
 	int days[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 	int valid = 1;
-	if ( opts.month != -1 && opts.days > days[opts.month]) 
+	if ( opts.month != -1 && opts.day > days[opts.month]) 
 			valid = 0;
 	if ( opts.month > 12 )
 		valid = 0;
@@ -171,7 +173,7 @@ void print_options( struct options o ) {
 	printf("White Player: %s\n", o.white_player);
 	printf("Black Player: %s\n", o.black_player);
 	printf("Round: %d\n", o.round);
-	printf("Year: %d, Month: %d, Day: %d\n" o.year, o,month, o.days);
+	printf("Year: %d, Month: %d, Day: %d\n", o.year, o.month, o.day);
 	printf("Result: %d\n", o.result);
 	
 	

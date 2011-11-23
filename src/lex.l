@@ -5,12 +5,15 @@
 
 int num_opts = 0;
 
-void yyerror(char*);
+void yyerror(char* s);
 
-%s GAME
-%s 
+
+
 
 %}
+
+%x GAME
+
 %%
 
 
@@ -20,9 +23,9 @@ void yyerror(char*);
 <INITIAL>\n		{if(++num_opts == OPTION_NUM)
 					BEGIN(GAME);
 				return **yytext;}
-<INITIAL>??		{return (UNKNOWN);}
+<INITIAL>"??"		{return (UNKNOWN);}
 <INITIAL>[ \t]	{return *yytext;}
-<INITIAL>/	{return *yytext;}
+<INITIAL>"/"	{return *yytext;}
 <INITIAL>.		{/*watisthis*/
 			char msg[25];
 			sprintf(msg, "%s <%s>", "Caracter invalido!", yytext);
@@ -32,3 +35,4 @@ void yyerror(char*);
 <GAME>.			{/*Not parsing yet, pass*/ ; }
 
 %%
+
