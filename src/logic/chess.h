@@ -45,6 +45,8 @@ struct piece {
     enum piece_type type;
     enum color color;
     uint8 col, row;
+    // useful for PAWNS, then can move 2 steps only the first time they move.
+    uint8 movments;
 };
 
 #define IS_WHITE(piece) 			(1 <= piece->id && piece->id <= 16)
