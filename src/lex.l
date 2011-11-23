@@ -1,5 +1,5 @@
 %{
-#include "y.tab.h“
+#include "y.tab.h"
 #include <stdio.h>
 #define OPTION_NUM 7
 
@@ -18,14 +18,19 @@ void yyerror(char* s);
 
 
 <INITIAL>[0-9]+	{yylval.num = atoi(yytext);return (INTEGER);	}
-<INITIAL>\"[^"/-]\" + {yylval.string = yytext; return (STRING);}
-<INITIAL>"."	{return **yytext;}
+<INITIAL>\"[^"/\-\n]+\" {yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0;return (STRING);}
+<INITIAL>"."	{return *yytext;}
 <INITIAL>\n		{if(++num_opts == OPTION_NUM)
 					BEGIN(GAME);
-				return **yytext;}
+				return *yytext;}
 <INITIAL>"??"		{return (UNKNOWN);}
 <INITIAL>[ \t]	{return *yytext;}
 <INITIAL>"/"	{return *yytext;}
+<INITIAL>"["	{return *yytext;}
+<INITIAL>"]"	{return *yytext;}
+<INITIAL>\"	{return *yytext;}
+<INITIAL>"-"	{return *yytext;}
+<INITIAL>[a-zA-Z]	{return *yytext;}
 <INITIAL>.		{/*watisthis*/
 			char msg[25];
 			sprintf(msg, "%s <%s>", "Caracter invalido!", yytext);

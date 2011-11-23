@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define WHITE_WINS 1
 #define DRAW_GAME 2
@@ -77,28 +78,29 @@ opts6:
 	;
 
 event:
-	'[' 'E' 'v' 'e' 'n' 't' ' ' STRING ']' '\n' { int len = strlen($8) - 2;
+	'[' 'E' 'v' 'e' 'n' 't' ' ' STRING ']' '\n' { int len = strlen($8) - 1;
 														opts.event_name = malloc(len);
-														memcpy(opts.event_name, $8 + 1, len); }
+														memcpy(opts.event_name, $8 + 1, len); free($8);
+														opts.event_name[len-1] = 0;}
 	;
 site:
-	'[' 'S' 'i' 't' 'e' ' ' STRING ']' '\n' { int len = strlen($7) - 2;
+	'[' 'S' 'i' 't' 'e' ' ' STRING ']' '\n' { int len = strlen($7) - 1;
 														opts.site_name = malloc(len);
-														memcpy(opts.site_name, $7 + 1, len); }
+														memcpy(opts.site_name, $7 + 1, len); free($7);opts.site_name[len-1] = 0;}
 	;
 white:
-	'[' 'W' 'h' 'i' 't' 'e' ' ' STRING ']' '\n' { int len = strlen($8) - 2;
+	'[' 'W' 'h' 'i' 't' 'e' ' ' STRING ']' '\n' { int len = strlen($8) - 1;
 														opts.white_player = malloc(len);
-														memcpy(opts.white_player, $8 + 1, len); }
+														memcpy(opts.white_player, $8 + 1, len);free($8);opts.white_player[len-1] = 0; }
 	;
 black:
-	'[' 'B' 'l' 'a' 'c' 'k' ' ' STRING ']' '\n' { int len = strlen($8) - 2;
+	'[' 'B' 'l' 'a' 'c' 'k' ' ' STRING ']' '\n' { int len = strlen($8) - 1; 
 														opts.black_player = malloc(len);
-														memcpy(opts.black_player, $8 + 1, len); }
+														memcpy(opts.black_player, $8 + 1, len);free($8);opts.white_player[len-1] = 0; }
 	;
 date:
 	'[' 'D' 'a' 't' 'e' ' ' '"' datecomp '/' datecomp '/' datecomp '"' ']' '\n' {
-																					opts.day = $8; opts.month = $10; opts.year = $12;
+																					opts.day = $12; opts.month = $10; opts.year = $8;
 																					if(!date_is_valid(opts)){
 																						yyerror("Date is invalid!\n");
 																						return YYENDERROR;
@@ -115,6 +117,7 @@ round:
 													yyerror("Invalid round format!\n");
 													return YYENDERROR;
 												}
+												opts.round = val;
 											}
 	;
 result:
