@@ -70,7 +70,7 @@ struct piece {
  */
 struct movement{
     enum color color;
-    uint8 col, uint8 row;
+    uint8 col, row;
 
     /** Optional data **/
     enum piece_type piece_type;
