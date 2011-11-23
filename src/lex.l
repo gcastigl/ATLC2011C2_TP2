@@ -17,36 +17,74 @@ void yyerror(char* s);
 
 %}
 
+%x SITE
+%x DATE
+%x WHITE
+%x BLACK
+%x ROUND_S
+%x RESULT
 %x GAME
 
 %%
 
 
-<INITIAL>[0-9]+	{yylval.num = atoi(yytext);return (INTEGER);	}
-<INITIAL>\"[^"/\-\n]+\" {yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0;return (STRING);}
-<INITIAL>"."	{return *yytext;}
-<INITIAL>"\n"		{if(++num_opts == OPTION_NUM){
-					printf("State Game Begun!");
-					BEGIN GAME;
-				}
-				printf("Sume 1!");
-				}
-<INITIAL>"??"		{return (UNKNOWN);}
-<INITIAL>[ \t]	{return *yytext;}
-<INITIAL>"/"	{return *yytext;}
-<INITIAL>"["	{return *yytext;}
-<INITIAL>"]"	{return *yytext;}
-<INITIAL>\"	{return *yytext;}
-<INITIAL>"-"	{return *yytext;}
-<INITIAL>[a-zA-Z]	{return *yytext;}
-<INITIAL>.		{/*watisthis*/
-			char msg[40];
-			if(*yytext == 0)
-				printf("WTFFFFF");
-			sprintf(msg, "%s <%s>", "Caracter invalido!", yytext);
-			yyerror(msg);
-		}
-<INITIAL>"1/2"	{return (DRAW);}
+<INITIAL>{
+"[Event \""		{ yylval.num = EVENT_TOK; return (INITIAL_TOKEN);}
+[^"\?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
+[?]+					{yylval.string= NULL; return (STRING);}
+"\"]\n"					{BEGIN SITE; return (END_TOKEN);}
+}
+
+<SITE>{
+"[Site \""		{ yylval.num = SITE_TOK; return (INITIAL_TOKEN);}
+[^"\?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
+[\?]+					{yylval.string= NULL; return (STRING);}
+"\"]\n"					{BEGIN DATE; return (END_TOKEN);}
+}
+
+<DATE>{
+"[Date \""		{return (INITIAL_DATE_TOKEN);}
+[0-9]+	{yylval.num = atoi(yytext);return (INTEGER);	}
+[\?]+	{yylval.num = -1; return (INTEGER);}
+"."		{return *yytext;}
+"\"]\n"					{BEGIN ROUND_S; return (END_TOKEN);}
+
+}
+
+<ROUND_S>{
+"[Round \""		{ return (INITIAL_ROUND_TOKEN);}
+[0-9]+	{yylval.num = atoi(yytext);return (INTEGER);	}
+[\?]+	{yylval.num = -1; return (INTEGER);}
+"\"]\n"					{BEGIN WHITE; return (END_TOKEN);}
+
+}
+
+
+<WHITE>{
+"[White \""		{ yylval.num = WHITE_TOK; return (INITIAL_TOKEN);}
+[^"?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
+[?]+					{yylval.string= NULL; return (STRING);}
+"\"]\n"					{BEGIN BLACK; return (END_TOKEN);}
+}
+
+<BLACK>{
+"[Black \""		{ yylval.num = BLACK_TOK; return (INITIAL_TOKEN);}
+[^"?]+				{yylval.string = malloc(yyleng+1); memcpy(yylval.string, yytext, yyleng);yylval.string[yyleng] = 0; return (STRING);}
+[?]+					{yylval.string= NULL; return (STRING);}
+"\"]\n"					{BEGIN RESULT; return (END_TOKEN);}
+}
+
+<RESULT>{
+"[Result \""		{return (INITIAL_RESULT_TOKEN);}
+"0-1" {yylval.ch = BLACK_WINS; return (FINALRESULT);}
+"1-0" {yylval.ch = WHITE_WINS; return (FINALRESULT);}
+"1/2-1/2"	{yylval.ch = DRAW_GAME; return (FINALRESULT);}
+[?]+	{yylval.ch = -1; return (FINALRESULT);}
+"\"]\n"					{BEGIN GAME; return (END_TOKEN);}
+
+}
+
+
 <GAME>[0-9]+\.	{yylval.num = atoi(yytext);return (ROUND);	}
 <GAME>[BNRQK]	{yylval.ch = *yytext; return (PIECE);}
 <GAME>[1-8]		{yylval.ch = *yytext; return (ROW);}

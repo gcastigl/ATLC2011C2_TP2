@@ -26,10 +26,11 @@ void yyerror(char * s);
 
 
 struct play plays[MAX_ROUNDS];
+struct options opts;
 
 int curr_round = 0;
 
-
+void update_options( int opts, char * str);
 int handle_play( int round, struct move white, struct move black, int result);
 int handle_short_play( int round, struct move white,  int result);
 struct move get_move( struct piece piece, struct coord target, int extra);
@@ -55,23 +56,16 @@ void print_play ( struct play * play);
 %token <ch> FINALRESULT
 %token <ch> CAPTURE
 %token <num> ROUND
+%token <num> INITIAL_TOKEN
+%token <num> INITIAL_DATE_TOKEN
+%token <num> INITIAL_ROUND_TOKEN
+%token <num> INITIAL_RESULT_TOKEN
+%token <num> END_TOKEN
 
 %type <string> program
-%type <string> opts1
-%type <string> opts2
-%type <string> opts3
-%type <string> opts4
-%type <string> opts5
-%type <string> opts6
-%type <string> event
-%type <string> site
-%type <string> date
-%type <string> round
-%type <string> white
-%type <string> black
-%type <string> result
-%type <num> res;
-%type <num> datecomp;
+%type <string> game
+%type <string> options
+%type <string> option
 %type <mv> move;
 %type  <coord> target;
 %type <num> extra;
@@ -83,88 +77,32 @@ void print_play ( struct play * play);
 %%
 
 program:
-	event opts1
+	options
 	;
-opts1:
-	site opts2
-	;
-opts2:
-	date opts3
-	;
-opts3:
-	round opts4
-	;
-opts4:
-	white opts5
-	;
-opts5:
-	black opts6
-	;
-opts6:
-	result game
+options:
+	option options
+	| game		{;}
 	;
 
-event:
-	'[' 'E' 'v' 'e' 'n' 't' ' ' STRING ']'  { int len = strlen($8) - 1;
-														opts.event_name = malloc(len);
-														memcpy(opts.event_name, $8 + 1, len); free($8);
-														opts.event_name[len-1] = 0;}
+option:
+	INITIAL_TOKEN STRING END_TOKEN  { update_options($1, $2);}
+	| INITIAL_DATE_TOKEN INTEGER '.' INTEGER '.' INTEGER END_TOKEN {int res = handle_and_verify_date($2,$4,$6);
+																	if(res == ERROR) {
+																			yyerror("Date is invalid.\n");
+																			return YYENDERROR;
+																		}
+																	}
+	| INITIAL_RESULT_TOKEN FINALRESULT END_TOKEN { opts.result = $2; }
+	| INITIAL_ROUND_TOKEN INTEGER END_TOKEN { opts.round = $2; }
 	;
-site:
-	'[' 'S' 'i' 't' 'e' ' ' STRING ']' { int len = strlen($7) - 1;
-														opts.site_name = malloc(len);
-														memcpy(opts.site_name, $7 + 1, len); free($7);opts.site_name[len-1] = 0;}
-	;
-white:
-	'[' 'W' 'h' 'i' 't' 'e' ' ' STRING ']' { int len = strlen($8) - 1;
-														opts.white_player = malloc(len);
-														memcpy(opts.white_player, $8 + 1, len);free($8);opts.white_player[len-1] = 0; }
-	;
-black:
-	'[' 'B' 'l' 'a' 'c' 'k' ' ' STRING ']' { int len = strlen($8) - 1; 
-														opts.black_player = malloc(len);
-														memcpy(opts.black_player, $8 + 1, len);free($8);opts.black_player[len-1] = 0; }
-	;
-date:
-	'[' 'D' 'a' 't' 'e' ' ' '"' datecomp '/' datecomp '/' datecomp '"' ']' {
-																					opts.day = $12; opts.month = $10; opts.year = $8;
-																					if(!date_is_valid(opts)){
-																						yyerror("Date is invalid!\n");
-																						return YYENDERROR;
-																					}
-																				}
-	;
-datecomp:
-	INTEGER		{$$ = $1;}
-	| UNKNOWN	{$$ = -1;}
-	;
-round:
-	'[' 'R' 'o' 'u' 'n' 'd' ' ' STRING ']'  { int val = atoi($8 + 1);
-												if(atoi == 0) {
-													yyerror("Invalid round format!\n");
-													return YYENDERROR;
-												}
-												opts.round = val;
-											}
-	;
-result:
-	'[' 'R' 'e' 's' 'u' 'l' 't' ' ' '"' res '"' ']'  {opts.result = $10;
-															if(opts.result == ERROR ) {
-																yyerror("Result is invalid!\n");
-																return YYENDERROR;
-															}
-														}
-	;
-res:
-	DRAW '-' DRAW { $$ = DRAW_GAME;}
-	| INTEGER '-' INTEGER { $$ = get_result( $1, $3 );}
-	;
+
+
 
 //TODO not really tested...
 
 game:
-	play game
-	| FINALRESULT
+	play game		{;}
+	| FINALRESULT		{;}
 	;
 play:
 	ROUND  ' ' move ' ' move ' '		{handle_play($1, $3, $5, 0);}
@@ -221,16 +159,37 @@ void print_play ( struct play * play ) {
 
 }
 
-int date_is_valid ( struct options opts ) {
+int handle_and_verify_date ( int year, int month, int day ) {
 	
 	int days[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 	int valid = 1;
-	if ( opts.month != -1 && opts.day > days[opts.month]) 
+	if ( month != -1 && day > days[month]) 
 			valid = 0;
 	if ( opts.month > 12 )
 		valid = 0;
-	return valid;
+	if(!valid)
+		return ERROR;
+	opts.day = day;
+	opts.month = month;
+	opts.year = year;
+	return 0;
 	
+}
+
+void update_options(int opt, char * str) {
+
+	char ** target;
+	switch(opt) {
+		case EVENT_TOK: target = &(opts.event_name);break;
+		case SITE_TOK: target = &(opts.site_name);break;
+		case WHITE_TOK: target = &(opts.white_player);break;
+		case BLACK_TOK: target = &(opts.black_player);break;
+	}
+	
+	int len = strlen(str) + 1;
+	*target = malloc(len);
+	memcpy(*target, str, len);
+	free(str);
 }
 
 int get_result ( int white, int  black ) {
