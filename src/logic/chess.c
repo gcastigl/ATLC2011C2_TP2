@@ -300,10 +300,10 @@ bool check_valid_coordenate(uint8 col, uint8 row) {
 }
 
 bool check_capture(struct movement* movement, struct gameboard* gameboard) {
-    if (movement->captures && piece_type == NONE) {
+    if (movement->captures && movement->piece_type == NONE) {
         return false;
     }
-    if (!movement->captures && piece_type != NONE) {
+    if (!movement->captures && movement->piece_type != NONE) {
         return false;
     }
     return true;
