@@ -1,6 +1,6 @@
 %{
+#include "parser.tab.h"
 #include "structs.h"
-#include "bison_include.h"
 #include <stdio.h>
 
 #define OPTION_NUM 7
@@ -16,7 +16,7 @@ void yyerror(char* s);
 %}
 
 EOL           (\n|\r\n|\l\n)
-WHITESPACE    [\n\r\l ]
+WHITESPACE    [\n\r\l\t ]
 COL           [a-h]
 CAPTURE       x
 DOT           \.
@@ -47,9 +47,9 @@ TAG_WHITE_BEGIN   "[White \""
 TAG_BLACK_BEGIN   "[Black \""
 TAG_RESULT_BEGIN  "[Result \""
 
-TAG_CONTENT     [^"]+
+TAG_CONTENT     [^"?]+
 
-TAG_UNKNOWN     "?"
+TAG_UNKNOWN     "\?"
 
 TAG_CLOSE       "\"]{EOL}"
 
@@ -191,15 +191,15 @@ RESULT_DRAW     "1/2-1/2"
                         return (ROUND);
                     }
     {PIECE}         {
-                        yylval.piece = *yytext;
+                        yylval.ch = *yytext;
                         return (PIECE);
                     }
     {COL}           {
-                        yylval.col = *yytext;
+                        yylval.ch = *yytext;
                         return (COL);
                     }
     {ROW}           {
-                        yylval.row = &yytext;
+                        yylval.num = atoi(yytext);
                         return (ROW);
                     }
     {CAPTURE}       {
@@ -220,11 +220,8 @@ RESULT_DRAW     "1/2-1/2"
     {CASTLE_QUEENSIDE} {
                         return (LONGCASTLE);
                     }
-    {WHITESPACE}    {
+    {WHITESPACE}+   {
                         return (SPACE);
-                    }
-    {CAPTURE}       {
-                        return (CAPTURE);
                     }
 }
 

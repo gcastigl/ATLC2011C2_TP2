@@ -1,8 +1,10 @@
+#ifndef __structs_h
+#define __structs_h
+
 #define EVENT_TOK 1
 #define SITE_TOK 2
 #define WHITE_TOK 3
 #define BLACK_TOK 4
-
 
 
 struct options {
@@ -48,3 +50,6 @@ struct play{
 	struct move black;
 	int end;
 };
+
+#endif
+
