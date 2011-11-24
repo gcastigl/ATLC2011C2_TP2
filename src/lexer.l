@@ -25,7 +25,7 @@ EOL           (\n|\r\n|\l\n)
 WHITESPACE    [\n\r\l\t ]
 COL           [a-h]
 CAPTURE       x
-DOT           \.
+DOT           "."
 ROW           [1-8]
 PIECE         [BNRQK]
 INTEGER       [0-9]+
@@ -57,7 +57,7 @@ TAG_CONTENT     [^"?]+
 
 TAG_UNKNOWN     [?]+
 
-TAG_CLOSE       "\"]{WHITESPACE}+{EOL}"
+TAG_CLOSE       "\"]"{EOL}
 
 RESULT_WHITE    "1-0"
 RESULT_BLACK    "0-1"
@@ -121,10 +121,10 @@ RESULT_DRAW     "1/2-1/2"
 
 <DATE>{
     {TAG_DATE_BEGIN}  {
-                        return (INITIAL_TOKEN);
+                        return (INITIAL_DATE_TOKEN);
                       }
     {DOT}             {
-                        return (DOT);
+                        return *yytext;
                       }
     {TAG_CLOSE}       {
                         BEGIN ROUND_S;
