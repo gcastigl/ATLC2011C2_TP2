@@ -31,6 +31,7 @@ struct target{
 	struct coord dst;
 	int check;
 	int checkmate;
+	char crowned;
 };
 
 struct move{
