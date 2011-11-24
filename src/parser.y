@@ -143,11 +143,13 @@ normal_move:
 
 pawn_move:
       COL ROW                             {$$=get_movement('P', $1, $2, 0, 0, false);}
+    | COL ROW COL ROW                     {$$=get_movement('P', $3, $4, $1, $2, true);}
     | COL CAPTURE COL ROW                 {$$=get_movement('P', $3, $4, $1, 0, true);}
     | COL ROW CAPTURE COL ROW             {$$=get_movement('P', $3, $4, $1, $2, true);}
     | COL ROW CROWN PIECE                 {$$=get_movement('P', $1, $2, 0, 0, false); add_crown($$, $4); }
     | COL CAPTURE COL ROW CROWN PIECE     {$$=get_movement('P', $3, $4, $1, 0, true); add_crown($$, $6); }
     | COL ROW CAPTURE COL ROW CROWN PIECE {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $7);}
+    | COL ROW COL ROW CROWN PIECE         {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $7);}
 ;
 
 castle:
