@@ -1,16 +1,13 @@
 #ifndef __chess_h
 #define __chess_h
 
-#include "frontend_interface.h"
+#include <stdbool.h>
 
-typedef uint8 unsigned char;
-
-typedef enum { false = 0, true } bool;
+typedef unsigned char uint8;
 
 #define TOTAL_TYPES	7
 /** Types of pieces in Chess **/
 enum piece_type {NONE = 0, KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
-
 
 /** Amount of pieces of each kind **/
 uint8 amount[TOTAL_TYPES];
@@ -61,11 +58,6 @@ struct movement{
     bool checkmate;
 };
 
-/**
- * This array of functions contains movement functions for all kinds of pieces.
- */
-bool (*movement_function)(struct gameboard*, struct piece*, struct movement*)[TOTAL_TYPES];
-
 /** 
  * Game main class
  */
@@ -73,6 +65,8 @@ struct gameboard{
 
     struct piece* piece[32];
 };
+
+void initialize();
 
 /**
  * Initialize a board with 32 pieces
@@ -84,4 +78,11 @@ struct gameboard* new_game();
  * or invalid movement)
  */
 bool make_move(struct gameboard* gameboard, struct movement* movement);
+
+/**
+ * This array of functions contains movement functions for all kinds of pieces.
+ */
+bool (*movement_function[TOTAL_TYPES])(struct gameboard*, struct piece*, struct movement*);
+
+#endif
 

@@ -1,8 +1,8 @@
 #include "chess.h"
+#include "frontend_interface.h"
+#include <string.h>
+#include <stdlib.h>
 
-static bool check_valid_coordanate(uint8, uint8);
-static bool check_capture(struct movement*, struct gameboard*);
-static int difference(uint8, uint8);
 static bool king_movement(struct gameboard*, struct piece*, struct movement*);
 static bool queen_movement(struct gameboard*, struct piece*, struct movement*);
 static bool rook_movement(struct gameboard*, struct piece*, struct movement*);
@@ -15,17 +15,17 @@ static bool pawn_movement(struct gameboard*, struct piece*, struct movement*);
  */
 void initialize() {
 
-    amount = {0, 1, 1, 2, 2, 2, 8};
+    memcpy(amount, (uint8[]){0, 1, 1, 2, 2, 2, 8}, sizeof(uint8) * 7);
 
-    initial_row = {1, 1, 1, 1, 1, 1, 1, 1,
+    memcpy(initial_row, (uint8[]) {1, 1, 1, 1, 1, 1, 1, 1,
                    2, 2, 2, 2, 2, 2, 2, 2,
-                   8, 8, 8, 8, 8, 8, 8, 8
-                   7, 7, 7, 7, 7, 7, 7, 7};
+                   8, 8, 8, 8, 8, 8, 8, 8,
+                   7, 7, 7, 7, 7, 7, 7, 7}, sizeof(uint8) * 32);
 
-    initial_col = {4, 5, 1, 8, 3, 6, 2, 7,
+    memcpy(initial_col, (uint8[]) {4, 5, 1, 8, 3, 6, 2, 7,
                    1, 2, 3, 4, 5, 6, 7, 8,
                    4, 5, 1, 8, 3, 6, 2, 7,
-                   1, 2, 3, 4, 5, 6, 7, 8};
+                   1, 2, 3, 4, 5, 6, 7, 8}, sizeof(uint8) * 32);
     
     movement_function[KING] = king_movement;
     movement_function[QUEEN] = queen_movement;
@@ -57,13 +57,16 @@ struct gameboard* new_game() {
                 piece->col = initial_col[id];
                 piece->row = initial_row[id];
                 piece->id = id + 1;
-            }
 
-            gameboard->piece[id++] = piece;
+                gameboard->piece[id++] = piece;
+            }
         }
     }
 
-    frontend_initialize(gameboard);
+    frontend_initialize();
+    frontend_new_game(gameboard);
+
+    return gameboard;
 }
 
 /**
@@ -130,8 +133,9 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                                     
                                     captured->alive = false;
                                 }
+
+                                frontend_process_capture(gameboard, captured);
                             }
-                            frontend_process_capture(gameboard, captured);
                         }
 
                         /** Crowning **/
@@ -141,10 +145,10 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                         }
 
                         /** Move logic **/
-                        frontend_process_move(gameboard, piece, movement);
-
                         piece->row = movement->row;
                         piece->col = movement->col;
+
+                        frontend_process_move(gameboard, piece, movement);
                     }
                 }
             }
@@ -157,8 +161,34 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
     return true;
 }
 
+static int difference(uint8 from, uint8 to) {
+    int ans = from - to;
+    if (ans < 0) {
+        ans *= (-1);
+    }
+    return ans;
+}
+
+static bool check_valid_coordenate(uint8 col, uint8 row) {
+    if (col < 1 || col > 8 || row < 1 || row > 8) {
+        return false;
+    }
+    return true;
+}
+
+static bool check_capture(struct movement* movement, struct gameboard* gameboard) {
+    if (movement->captures && movement->piece_type == NONE) {
+        return false;
+    }
+    if (!movement->captures && movement->piece_type != NONE) {
+        return false;
+    }
+    return true;
+}
+
 static bool king_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
-	if (check_valid_coordenate(movement->col, movement->row) == false) {
+
+    if (check_valid_coordenate(movement->col, movement->row) == false) {
         return false;
     }
     if (check_capture(movement, gameboard) == false) {
@@ -292,27 +322,3 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
     //TODO CHECK CHECK
 }
 
-bool check_valid_coordenate(uint8 col, uint8 row) {
-    if (col < 1 || col > 8 || row < 1 || row > 8) {
-        return false;
-    }
-    return true;
-}
-
-bool check_capture(struct movement* movement, struct gameboard* gameboard) {
-    if (movement->captures && movement->piece_type == NONE) {
-        return false;
-    }
-    if (!movement->captures && movement->piece_type != NONE) {
-        return false;
-    }
-    return true;
-}
-
-int difference(uint8 from, uint8, to) {
-    int ans = from - to;
-    if (ans < 0) {
-        ans*= -1;
-    }
-    return ans;
-}
