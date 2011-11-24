@@ -2,6 +2,7 @@
 
 static bool check_valid_coordanate(uint8, uint8);
 static bool check_capture(struct movement*, struct gameboard*);
+static int difference(uint8, uint8);
 static bool king_movement(struct gameboard*, struct piece*, struct movement*);
 static bool queen_movement(struct gameboard*, struct piece*, struct movement*);
 static bool rook_movement(struct gameboard*, struct piece*, struct movement*);
@@ -166,7 +167,14 @@ static bool king_movement(struct gameboard* gameboard, struct piece* piece, stru
     if (movement->crown_type != NONE) {
         return false;
     }
-    //TODO CHECK MOVEMENT
+    int diffcol = difference(movement->col, piece->col);
+    int diffrow = difference(movement->row, piece->row);
+    if (diffcol > 1 || diffrow > 1) {
+        return false;
+    }
+    if (diffcol != 1 && diffrow != 1) {
+        return false;
+    }
     //TODO CHECK CHECK
     return true;
 }
@@ -185,7 +193,14 @@ static bool rook_movement(struct gameboard* gameboard, struct piece* piece, stru
     if (movement->crown_type != NONE) {
         return false;
     }
-    //TODO CHECK MOVEMENT
+    int diffcol = difference(movement->col, piece->col);
+    int diffrow = difference(movement->row, movement->row);
+    if (diffcol == 0 && diffcol == 0) {
+        return false;
+    }
+    if (diffcol != 0 && diffcol != 0) {
+        return false;
+    }
     //TODO CHECK CHECK
     return true;   
 }
@@ -201,7 +216,11 @@ static bool bishop_movement(struct gameboard* gameboard, struct piece* piece, st
         return false;
     }
     return true;
-    //TODO CHECK MOVEMENT
+    int diffcol = difference(movement->col, piece->col);
+    int diffrow = difference(movement->row, piece->row);
+    if (diffcol != diffrow) {
+        return false;
+    }
     //TODO CHECK CHECK
 }
 
@@ -216,7 +235,15 @@ static bool knight_movement(struct gameboard* gameboard, struct piece* piece, st
         return false;
     }
     return true;
-    //TODO CHECK MOVEMENT
+    int diffcol = difference(movement->col, piece->col);
+    int diffrow = difference(movement->row, piece->row);
+    bool checkmov = false;
+    if ((diffcol == 2 && diffrow == 1) || (diffcol == 1 && diffrow == 2)) {
+        checkmov = true;
+    }
+    if (checkmov == false) {
+        return false;
+    }
     //TODO CHECK CHECK
 }
 
@@ -228,8 +255,40 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
         return false;
     }
     return true;
-    //TODO CHECK MOVEMENT
-    //TODO CHECK CROWNING
+    //CHECK IF PAWN IS GOING FORWARD
+    int diffrow = piece->row - movement->row;
+    if ((diffrow > 0 && piece->color == WHITE) || (diffrow < 0 && piece->color == BLACK)) {
+        return false;
+    }
+    int diffcol = difference(movement->col, piece->col);
+    diffrow = difference(movement->row, piece->row);
+    bool checkmov = false;
+    if (diffcol == 0 && diffrow == 1 && !movement->captures) {
+        checkmov = true;
+    } 
+    if (diffcol == 1 && diffrow == 1 && movement->captures) {
+        checkmov = true;
+    }
+    if (diffcol == 0 && diffrow == 2 && !movement->captures && ((piece->color == WHITE && piece->row == 2) 
+                || (piece->color == BLACK && piece->row == 7))) {
+        checkmov = true;
+    }
+    if (checkmov == false) {
+        return false;
+    }
+    bool finalrow = false;
+    if ((piece->color == WHITE && movement->row == 8) || (piece->color == BLACK && movement->row == 1)) {
+        finalrow == true;
+    }
+    if (movement->crown_type != NONE && !finalrow) {
+        return false;
+    }
+    if (movement->crown_type == NONE && finalrow) {
+        return false;
+    }
+    if (movement->crown_type == PAWN) {
+        return false;
+    }
     //TODO CHECK CHECK
 }
 
@@ -250,3 +309,10 @@ bool check_capture(struct movement* movement, struct gameboard* gameboard) {
     return true;
 }
 
+int difference(uint8 from, uint8, to) {
+    int ans = from - to;
+    if (ans < 0) {
+        ans*= -1;
+    }
+    return ans;
+}
