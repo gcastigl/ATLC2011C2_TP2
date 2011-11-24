@@ -52,7 +52,7 @@ void update_options( int opts, char * str);
 %token <num> INITIAL_ROUND_TOKEN
 %token <num> INITIAL_RESULT_TOKEN
 
-%token <num> FINALRESULT
+%token <ch> FINALRESULT
 %token <num> END_TOKEN
 
 %token <num>    UNKNOWN
@@ -97,8 +97,8 @@ program:
 
 option:
       INITIAL_TOKEN STRING END_TOKEN  {
-        printf("Option");
-        //  return update_options($1, $2);
+        //printf("Option");
+        update_options($1, $2);
       }
     | INITIAL_DATE_TOKEN INTEGER '.' INTEGER '.' INTEGER END_TOKEN {
            int res = handle_and_verify_date($2,$4,$6);
@@ -108,9 +108,11 @@ option:
            }
       }
     | INITIAL_RESULT_TOKEN FINALRESULT END_TOKEN {
+printf("Setting the result!");
            opts.result = $2;
       }
     | INITIAL_ROUND_TOKEN INTEGER END_TOKEN {
+			
            opts.round = $2;
       }
 ;
