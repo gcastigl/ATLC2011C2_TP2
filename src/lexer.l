@@ -47,9 +47,9 @@ TAG_WHITE_BEGIN   "[White \""
 TAG_BLACK_BEGIN   "[Black \""
 TAG_RESULT_BEGIN  "[Result \""
 
-TAG_CONTENT     [^"?]+
+TAG_CONTENT     [^"\?]+
 
-TAG_UNKNOWN     "\?"
+TAG_UNKNOWN     [?]+
 
 TAG_CLOSE       "\"]{EOL}"
 
@@ -74,7 +74,7 @@ RESULT_DRAW     "1/2-1/2"
 <SITE>{
     {TAG_SITE_BEGIN} {
                         yylval.num = SITE_TOK;
-                        return (SITE_TOK);
+                        return (INITIAL_TOKEN);
                     }
     {TAG_CLOSE}       {
                         BEGIN DATE;
@@ -87,6 +87,8 @@ RESULT_DRAW     "1/2-1/2"
                         yylval.string = malloc(yyleng+1);
                         memcpy(yylval.string, yytext, yyleng);
                         yylval.string[yyleng] = 0;
+                        printf("Content event: %s", yytext);
+                        fflush(stdout);
                         return (STRING);
                     }
     {TAG_UNKNOWN}     {
@@ -108,10 +110,10 @@ RESULT_DRAW     "1/2-1/2"
 
 <DATE>{
     {TAG_DATE_BEGIN}  {
-                        return (INITIAL_DATE_TOKEN);
+                        return (INITIAL_TOKEN);
                     }
     {DOT}             {
-                        return *yytext;
+                        return (DOT);
                     }
     {TAG_CLOSE}       {
                         BEGIN ROUND_S;
@@ -131,7 +133,6 @@ RESULT_DRAW     "1/2-1/2"
 
 <WHITE>{
     {TAG_WHITE_BEGIN} {
-                        yylval.num = WHITE_TOK;
                         return (INITIAL_WHITE_TOKEN);
                     }
     {TAG_CLOSE}       {
@@ -142,7 +143,6 @@ RESULT_DRAW     "1/2-1/2"
 
 <BLACK>{
     {TAG_BLACK_BEGIN} {
-                        yylval.num = BLACK_TOK;
                         return (INITIAL_BLACK_TOKEN);
                     }
     {TAG_CLOSE}       {

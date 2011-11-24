@@ -47,6 +47,7 @@ void update_options( int opts, char * str);
 
 %token <num>    UNKNOWN
 %token <num>    INTEGER
+%token <ch>     DOT
 %token <string> STRING
 
 %token <num> ROUND
@@ -83,6 +84,7 @@ program:
 
 option:
       INITIAL_TOKEN STRING END_TOKEN  {
+        printf("Option");
         //  return update_options($1, $2);
       }
     | INITIAL_DATE_TOKEN INTEGER '.' INTEGER '.' INTEGER END_TOKEN {
