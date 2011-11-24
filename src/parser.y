@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "./logic/chess.h"
-#include "./structs.h"
 
 #define WHITE_WINS 1
 #define DRAW_GAME 2
