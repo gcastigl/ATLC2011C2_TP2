@@ -24,21 +24,25 @@ void frontend_initialize() {
         SDL_Quit();
     }
 
-    board = IMG_Load("res/images/board.png");
+    board = IMG_Load("../res/images/board.png");
 
     char path[50];
     
-    strcpy(path, "res/images/piece__.png");
+    strcpy(path, "../res/images/piece__.png");
 
     for (enum color color = WHITE; color <= BLACK; color++) {
         
-        path[17] = color + '1';
+        path[19] = color + '1';
 
         for (enum piece_type piece = KING; piece <= PAWN; piece++) {
             
-            path[18] = piece + '0';
+            path[20] = piece + '0';
 
             pieces[color][piece] = IMG_Load(path);
+
+            if (pieces[color][piece] == NULL) {
+                printf("Error loading piece %s\n", path);
+            }
         }
     }
 }
@@ -71,9 +75,11 @@ static void draw_gameboard(struct gameboard* gameboard) {
     SDL_BlitSurface(board, NULL, screen, &rcDest);
 
     for (int i = 0; i < 32; i++) {
+
         struct piece* piece = gameboard->piece[i];
+
         if (piece->alive) {
-            rcDest.x = piece->col * IMG_WIDTH;
+            rcDest.x = (piece->col - 1) * IMG_WIDTH;
             rcDest.y = (8 - piece->row) * IMG_HEIGHT;
         }
         SDL_BlitSurface(pieces[piece->color][piece->type], NULL, screen, &rcDest);
