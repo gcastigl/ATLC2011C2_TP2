@@ -74,6 +74,7 @@ RESULT_DRAW     "1/2-1/2"
                       }
     {TAG_CLOSE}       {
                         printf("End of initial\n");
+                        fflush(stdout);
                         BEGIN SITE;
                         return (END_TOKEN);
                       }
