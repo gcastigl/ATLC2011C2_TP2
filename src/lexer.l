@@ -1,6 +1,7 @@
 %{
+#include "./logic/chess.h"
 #include "parser.tab.h"
-#include "structs.h"
+
 #include <stdio.h>
 
 #define OPTION_NUM 7
@@ -74,7 +75,7 @@ RESULT_DRAW     "1/2-1/2"
 <SITE>{
     {TAG_SITE_BEGIN} {
                         yylval.num = SITE_TOK;
-                        return (SITE_TOK);
+                        return (INITIAL_TOKEN);
                     }
     {TAG_CLOSE}       {
                         BEGIN DATE;
@@ -132,7 +133,7 @@ RESULT_DRAW     "1/2-1/2"
 <WHITE>{
     {TAG_WHITE_BEGIN} {
                         yylval.num = WHITE_TOK;
-                        return (INITIAL_WHITE_TOKEN);
+                        return (INITIAL_TOKEN);
                     }
     {TAG_CLOSE}       {
                         BEGIN BLACK;
@@ -143,7 +144,7 @@ RESULT_DRAW     "1/2-1/2"
 <BLACK>{
     {TAG_BLACK_BEGIN} {
                         yylval.num = BLACK_TOK;
-                        return (INITIAL_BLACK_TOKEN);
+                        return (INITIAL_TOKEN);
                     }
     {TAG_CLOSE}       {
                         BEGIN RESULT;

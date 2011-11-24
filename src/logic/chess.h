@@ -52,7 +52,8 @@ struct movement{
     uint8 from_col, from_row;
 
     /** Flags **/
-    bool castle;
+    bool castle_queenside;
+	bool castle_kingside;
     bool captures;
     bool check;
     bool checkmate;
