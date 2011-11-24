@@ -14,3 +14,4 @@ touch chess.c
 
 # Compile and link with other C sources
 gcc $FLAGS -I$INCLUDE *.c ../src/logic/*.c -lfl -o -g
+
