@@ -143,6 +143,7 @@ castle:
 check:
       CHECK        { ; }
     | CHECKMATE    { ; }
+    |              { ; }
 ;
 
 %%
