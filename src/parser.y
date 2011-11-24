@@ -9,6 +9,11 @@
 #define DRAW_GAME 2
 #define BLACK_WINS 3
 
+#define EVENT_TOK 1
+#define SITE_TOK 2
+#define WHITE_TOK 3
+#define BLACK_TOK 4
+
 #define NOCHCK 0
 #define CHCK 1
 #define CHCKMATE 2
@@ -21,6 +26,11 @@
 
 int yylex(void);
 void yyerror(char * s);
+struct movement * get_movement( char piece, uint8 col, uint8 row, uint8 from_col, uint8 from_row,  bool capture);
+struct movement * get_castle_movement ( bool is_short);
+void add_crown( struct movement * mv, enum piece_type piece );
+enum piece_type get_piece_type ( char piece);
+struct movement *  add_check( struct movement * mv, char val );
 
 struct options opts;
 
@@ -47,6 +57,7 @@ void update_options( int opts, char * str);
 
 %token <num>    UNKNOWN
 %token <num>    INTEGER
+%token <ch>     DOT
 %token <string> STRING
 
 %token <num> ROUND
@@ -64,13 +75,11 @@ void update_options( int opts, char * str);
 
 %token <ch> SPACE
 
+%type <ch> check
+
 %type <string> program
 %type <string> option
 %type <string> game
-%type <string> move;
-%type <string> normal_move
-%type <string> pawn_move
-%type <string> castle
 
 %type <mv> normal_move;
 %type <mv> move;
@@ -88,7 +97,8 @@ program:
 
 option:
       INITIAL_TOKEN STRING END_TOKEN  {
-          return update_options($1, $2);
+        printf("Option");
+        //  return update_options($1, $2);
       }
     | INITIAL_DATE_TOKEN INTEGER '.' INTEGER '.' INTEGER END_TOKEN {
            int res = handle_and_verify_date($2,$4,$6);
@@ -117,27 +127,27 @@ round:
 ;
 
 move:
-      castle      check {;}
-    | normal_move check {;}
-    | pawn_move   check {;}
+      castle      check {$$ = add_check( $1, $2);}
+    | normal_move check {$$ = add_check( $1, $2);}
+    | pawn_move   check {$$ = add_check( $1, $2);}
 ;
 
 normal_move:
-      PIECE COL ROW             { get_movement($1, $2, $3, 0, 0, false); }
-    | PIECE CAPTURE COL ROW     { get_movement($1, $2, $3, 0, 0, true);}
-    | PIECE COL COL ROW         { get_movement($1, $3, $4, $2, 0, false);}
-    | PIECE COL CAPTURE COL ROW { get_movement($1, $3, $4, $2, 0, true);}
-    | PIECE ROW COL ROW         { get_movement($1, $3, $4, 0, $2, false);}
-    | PIECE ROW CAPTURE COL ROW { get_movement($1, $3, $4, 0, $2, true);}
+      PIECE COL ROW             { $$=get_movement($1, $2, $3, 0, 0, false); }
+    | PIECE CAPTURE COL ROW     { $$=get_movement($1, $2, $3, 0, 0, true);}
+    | PIECE COL COL ROW         { $$=get_movement($1, $3, $4, $2, 0, false);}
+    | PIECE COL CAPTURE COL ROW { $$=get_movement($1, $4, $5, $2, 0, true);}
+    | PIECE ROW COL ROW         { $$=get_movement($1, $3, $4, 0, $2, false);}
+    | PIECE ROW CAPTURE COL ROW { $$=get_movement($1, $4, $5, 0, $2, true);}
 ;
 
 pawn_move:
-      COL ROW                             {get_movement(PAWN, $2, $3, 0, 0, false);}
-    | COL CAPTURE COL ROW                 {get_movement(PAWN, $2, $3, 0, 0, true);}
-    | COL ROW CAPTURE COL ROW             {get_movement(PAWN, $2, $3, 0, 0, false);}
-    | COL ROW CROWN PIECE                 {get_movement(PAWN, $2, $3, 0, 0, false);}
-    | COL CAPTURE COL ROW CROWN PIECE     {get_movement(PAWN, $2, $3, 0, 0, false);}
-    | COL ROW CAPTURE COL ROW CROWN PIECE {get_movement(PAWN, $2, $3, 0, 0, false);}
+      COL ROW                             {$$=get_movement('P', $1, $2, 0, 0, false);}
+    | COL CAPTURE COL ROW                 {$$=get_movement('P', $3, $4, $1, 0, true);}
+    | COL ROW CAPTURE COL ROW             {$$=get_movement('P', $3, $4, $1, $2, true);}
+    | COL ROW CROWN PIECE                 {$$=get_movement('P', $1, $2, 0, 0, false); add_crown($$, $4); }
+    | COL CAPTURE COL ROW CROWN PIECE     {$$=get_movement('P', $3, $4, $1, 0, true); add_crown($$, $6); }
+    | COL ROW CAPTURE COL ROW CROWN PIECE {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $7);}
 ;
 
 castle:
@@ -153,16 +163,31 @@ check:
 
 %%
 
-void add_check( struct movement * mv, char val ) {
+
+enum piece_type get_piece_type ( char piece) {
+
+	//todo, vector bobo
+	return 0;
+}
+
+void add_crown( struct movement * mv, enum piece_type piece ){
+
+	mv-> crown_type = piece;
+
+}
+
+struct movement *  add_check( struct movement * mv, char val ) {
 
 	switch (val) {
 		case CHCK: mv->check = true;break;
 		case CHCKMATE: mv->checkmate = true;break;
 		default: break;
 	}
-	return;
+	return mv;
 
 }
+
+
 
 struct movement * get_castle_movement ( bool is_short) {
 	
@@ -176,19 +201,21 @@ struct movement * get_castle_movement ( bool is_short) {
 }
 
 
-struct movement * get_movement( enum piece_type piece_type, uint8 col, uint8 row, int8 from_col, uint8 from_row,  bool capture) {
+struct movement * get_movement( char piece, uint8 col, uint8 row, uint8 from_col, uint8 from_row,  bool capture) {
 	
+	enum piece_type piece_type = get_piece_type(piece);
 	struct movement * mv = malloc(sizeof(struct movement));
 	mv->piece_type = piece_type;
 	mv->col = col;
 	mv->row = row;
 	mv->from_col = from_col;
 	mv->from_row = from_row;
-	mv->capture = capture;
+	mv->captures = capture;
 	mv->castle_kingside = false;
 	mv->castle_queenside = false;
 	mv->check = false;
 	mv->checkmate = false;
+	mv->crown_type = 0;
 	return mv;
 
 

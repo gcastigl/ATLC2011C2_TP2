@@ -21,6 +21,19 @@ uint8 initial_col[32];
 enum color {WHITE, BLACK};
 
 
+struct options {
+	char * event_name;
+	char * site_name;
+	int day;
+	int  month;
+	int year;
+	int round;
+	char * white_player;
+	char * black_player;
+	int result;
+};
+
+
 /**
  * A piece in the board. It has an ID: a number from 1 to 32 included. Pieces
  * from 1 to 16 are for the white player, from 17 to 32 are black player's.

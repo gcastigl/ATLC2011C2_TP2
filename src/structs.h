@@ -7,17 +7,7 @@
 #define BLACK_TOK 4
 
 
-struct options {
-	char * event_name;
-	char * site_name;
-	int day;
-	int  month;
-	int year;
-	int round;
-	char * white_player;
-	char * black_player;
-	int result;
-};
+
 
 struct coord{
 	char col;

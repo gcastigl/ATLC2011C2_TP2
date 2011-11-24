@@ -1,6 +1,6 @@
 %{
 #include "./logic/chess.h"
-#include "parser.tab.h"
+#include "y.tab.h"
 
 #include <stdio.h>
 
@@ -9,6 +9,11 @@
 #define WHITE_WINS 1
 #define DRAW_GAME 2
 #define BLACK_WINS 3
+
+#define EVENT_TOK 1
+#define SITE_TOK 2
+#define WHITE_TOK 3
+#define BLACK_TOK 4
 
 int num_opts = 0;
 
@@ -48,9 +53,9 @@ TAG_WHITE_BEGIN   "[White \""
 TAG_BLACK_BEGIN   "[Black \""
 TAG_RESULT_BEGIN  "[Result \""
 
-TAG_CONTENT     [^"?]+
+TAG_CONTENT     [^"\?]+
 
-TAG_UNKNOWN     "\?"
+TAG_UNKNOWN     [?]+
 
 TAG_CLOSE       "\"]{EOL}"
 
@@ -88,6 +93,8 @@ RESULT_DRAW     "1/2-1/2"
                         yylval.string = malloc(yyleng+1);
                         memcpy(yylval.string, yytext, yyleng);
                         yylval.string[yyleng] = 0;
+                        printf("Content event: %s", yytext);
+                        fflush(stdout);
                         return (STRING);
                     }
     {TAG_UNKNOWN}     {
@@ -109,10 +116,10 @@ RESULT_DRAW     "1/2-1/2"
 
 <DATE>{
     {TAG_DATE_BEGIN}  {
-                        return (INITIAL_DATE_TOKEN);
+                        return (INITIAL_TOKEN);
                     }
     {DOT}             {
-                        return *yytext;
+                        return (DOT);
                     }
     {TAG_CLOSE}       {
                         BEGIN ROUND_S;
