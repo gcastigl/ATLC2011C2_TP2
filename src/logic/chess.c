@@ -1,11 +1,13 @@
 #include "chess.h"
 
-static bool king_movement(struct piece*, struct movement*);
-static bool queen_movement(struct piece*, struct movement*);
-static bool rook_movement(struct piece*, struct movement*);
-static bool bishop_movement(struct piece*, struct movement*);
-static bool knight_movement(struct piece*, struct movement*);
-static bool pawn_movement(struct piece*, struct movement*);
+static bool check_valid_coordanate(uint8, uint8);
+static bool check_capture(struct movement*, struct gameboard*);
+static bool king_movement(struct gameboard*, struct piece*, struct movement*);
+static bool queen_movement(struct gameboard*, struct piece*, struct movement*);
+static bool rook_movement(struct gameboard*, struct piece*, struct movement*);
+static bool bishop_movement(struct gameboard*, struct piece*, struct movement*);
+static bool knight_movement(struct gameboard*, struct piece*, struct movement*);
+static bool pawn_movement(struct gameboard*, struct piece*, struct movement*);
 
 /**
  * Initialize constant data structures.
@@ -154,27 +156,97 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
     return true;
 }
 
-static bool king_movement(struct piece* piece, struct movement* movement) {
-	return true;
+static bool king_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
+	if (check_valid_coordenate(movement->col, movement->row) == false) {
+        return false;
+    }
+    if (check_capture(movement, gameboard) == false) {
+        return false;
+    }
+    if (movement->crown_type != NONE) {
+        return false;
+    }
+    //TODO CHECK MOVEMENT
+    //TODO CHECK CHECK
+    return true;
 }
 
-static bool queen_movement(struct piece* piece, struct movement* movement) {
-	return true;
+static bool queen_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
+    return rook_movement(gameboard, piece, movement) || bishop_movement(gameboard, piece, movement);
 }
 
-static bool rook_movement(struct piece* piece, struct movement* movement) {
-	return true;
+static bool rook_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
+ 	if (check_valid_coordenate(movement->col, movement->row) == false) {
+        return false;
+    }
+    if (check_capture(movement, gameboard) == false) {
+        return false;
+    }
+    if (movement->crown_type != NONE) {
+        return false;
+    }
+    //TODO CHECK MOVEMENT
+    //TODO CHECK CHECK
+    return true;   
 }
 
-static bool movement_bishop(struct piece* piece, struct movement* movement) {
-	return true;
+static bool bishop_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
+	if (check_valid_coordenate(movement->col, movement->row) == false) {
+        return false;
+    }
+    if (check_capture(movement, gameboard) == false) {
+        return false;
+    }
+    if (movement->crown_type != NONE) {
+        return false;
+    }
+    return true;
+    //TODO CHECK MOVEMENT
+    //TODO CHECK CHECK
 }
 
-static bool movement_knight(struct piece* piece, struct movement* movement) {
-	return true;
+static bool knight_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
+	if (check_valid_coordenate(movement->col, movement->row) == false) {
+        return false;
+    }
+    if (check_capture(movement, gameboard) == false) {
+        return false;
+    }
+    if (movement->crown_type != NONE) {
+        return false;
+    }
+    return true;
+    //TODO CHECK MOVEMENT
+    //TODO CHECK CHECK
 }
 
-static bool movement_pawn(struct piece* piece, struct movement* movement) {
-	return true;
+static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
+	if (check_valid_coordenate(movement->col, movement->row) == false) {
+        return false;
+    }
+    if (check_capture(movement, gameboard) == false) {
+        return false;
+    }
+    return true;
+    //TODO CHECK MOVEMENT
+    //TODO CHECK CROWNING
+    //TODO CHECK CHECK
+}
+
+bool check_valid_coordenate(uint8 col, uint8 row) {
+    if (col < 1 || col > 8 || row < 1 || row > 8) {
+        return false;
+    }
+    return true;
+}
+
+bool check_capture(struct movement* movement, struct gameboard* gameboard) {
+    if (movement->captures && piece_type == NONE) {
+        return false;
+    }
+    if (!movement->captures && piece_type != NONE) {
+        return false;
+    }
+    return true;
 }
 
