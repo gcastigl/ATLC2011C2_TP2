@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "./logic/chess.h"
+#include "./structs.h"
 
 #define WHITE_WINS 1
 #define DRAW_GAME 2
@@ -75,7 +76,7 @@ void update_options( int opts, char * str);
 
 %token <ch> SPACE
 
-%type <ch> check
+%type <num> check
 
 %type <string> program
 %type <string> option
@@ -149,7 +150,7 @@ pawn_move:
     | COL ROW CROWN PIECE                 {$$=get_movement('P', $1, $2, 0, 0, false); add_crown($$, $4); }
     | COL CAPTURE COL ROW CROWN PIECE     {$$=get_movement('P', $3, $4, $1, 0, true); add_crown($$, $6); }
     | COL ROW CAPTURE COL ROW CROWN PIECE {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $7);}
-    | COL ROW COL ROW CROWN PIECE         {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $7);}
+    | COL ROW COL ROW CROWN PIECE         {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $6);}
 ;
 
 castle:

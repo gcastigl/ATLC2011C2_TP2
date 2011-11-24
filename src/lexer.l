@@ -109,10 +109,12 @@ RESULT_DRAW     "1/2-1/2"
 <DATE,ROUND_S>{
     {INTEGER}         {
                         yylval.num = atoi(yytext);
+                        printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
     {TAG_UNKNOWN}     {
                         yylval.num = -1;
+                        printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
 }
