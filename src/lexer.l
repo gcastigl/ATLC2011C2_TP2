@@ -90,7 +90,7 @@ RESULT_DRAW     "1/2-1/2"
                       }
 }
 
-<INITIAL,SITE,ROUND_S,WHITE,BLACK,RESULT>{
+<INITIAL,SITE,WHITE,BLACK>{
     {TAG_CONTENT}     {
                         yylval.string = malloc(yyleng+1);
                         memcpy(yylval.string, yytext, yyleng);
@@ -100,11 +100,9 @@ RESULT_DRAW     "1/2-1/2"
                         fflush(stdout);
                         return (STRING);
                       }
-    {TAG_UNKNOWN}     {
-                        yylval.string = NULL;
-                        return (STRING);
-                      }
+    
 }
+
 
 <DATE,ROUND_S>{
     {INTEGER}         {
