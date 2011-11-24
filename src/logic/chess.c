@@ -186,6 +186,67 @@ static bool check_capture(struct movement* movement, struct gameboard* gameboard
     return true;
 }
 
+static bool rook_simple(uint8 fromcol, uint8 fromrow, uint8 tocol, uint8 torow) {
+    int diffcol = difference(tocol, fromcol);
+    int diffrow = difference(torow, fromrow);
+    if (diffcol == 0 && diffcol == 0) {
+        return false;
+    }
+    if (diffcol != 0 && diffcol != 0) {
+        return false;
+    }
+    return true;
+}
+
+static bool bishop_simple(uint8 fromcol, uint8 fromrow, uint8 tocol, uint8 torow) {
+    int diffcol = difference(tocol, fromcol);
+    int diffrow = difference(torow, fromrow);
+    if (diffcol != diffrow) {
+        return false;
+    }
+    return true;
+}
+
+static bool knight_simple(uint8 fromcol, uint8 fromrow, uint8 tocol, uint8 torow) {
+    int diffcol = difference(tocol, fromcol);
+    int diffrow = difference(torow, fromrow);
+    bool checkmov = false;
+    if ((diffcol == 2 && diffrow == 1) || (diffcol == 1 && diffrow == 2)) {
+        checkmov = true;
+    }
+    if (checkmov == false) {
+        return false;
+    }
+
+}
+
+static bool king_simple(uint8 fromcol, uint8 fromrow, uint8 tocol, uint8 torow) {
+
+    int diffcol = difference(tocol, fromcol);
+    int diffrow = difference(torow, fromrow);
+    if (diffcol > 1 || diffrow > 1) {
+        return false;
+    }
+    if (diffcol != 1 && diffrow != 1) {
+        return false;
+    }
+    return true;
+}
+
+static void lookforking(struct piece* piece, int* row, int* col, struct gameboard* gameboard) {
+    int tolook = WHITE;
+    if (piece->color == WHITE) {
+        tolook = BLACK;
+    }
+    for (int i = 1; i<=32; i++) {
+        if (gameboard->piece[i]->color == tolook && gameboard->piece[i]->type == KING) {
+            *row = gameboard->piece[i]->row;
+            *col = gameboard->piece[i]->col;
+            return;
+        }
+    }
+}
+
 static bool king_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
 
     if (check_valid_coordenate(movement->col, movement->row) == false) {
@@ -197,15 +258,19 @@ static bool king_movement(struct gameboard* gameboard, struct piece* piece, stru
     if (movement->crown_type != NONE) {
         return false;
     }
-    int diffcol = difference(movement->col, piece->col);
-    int diffrow = difference(movement->row, piece->row);
-    if (diffcol > 1 || diffrow > 1) {
+    if (king_simple(piece->col, piece->row, movement->col, movement->row) == false) {
         return false;
     }
-    if (diffcol != 1 && diffrow != 1) {
+    int kingrow;
+    int kingcol;
+    lookforking(piece, &kingrow, &kingcol, gameboard);
+    if (movement->check && !king_simple(movement->col, movement->row, kingcol, kingrow)) {
         return false;
     }
-    //TODO CHECK CHECK
+    if (!movement->check && king_simple(movement->col, movement->row, kingcol, kingrow)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -223,15 +288,18 @@ static bool rook_movement(struct gameboard* gameboard, struct piece* piece, stru
     if (movement->crown_type != NONE) {
         return false;
     }
-    int diffcol = difference(movement->col, piece->col);
-    int diffrow = difference(movement->row, movement->row);
-    if (diffcol == 0 && diffcol == 0) {
+    if (rook_simple(piece->col, piece->row, movement->col, movement->row) == false) {
+        return false;
+    }   
+    int kingrow;
+    int kingcol;
+    lookforking(piece, &kingrow, &kingcol, gameboard);
+    if (movement->check && !rook_simple(movement->col, movement->row, kingcol, kingrow)) {
         return false;
     }
-    if (diffcol != 0 && diffcol != 0) {
+    if (!movement->check && rook_simple(movement->col, movement->row, kingcol, kingrow)) {
         return false;
     }
-    //TODO CHECK CHECK
     return true;   
 }
 
@@ -245,13 +313,20 @@ static bool bishop_movement(struct gameboard* gameboard, struct piece* piece, st
     if (movement->crown_type != NONE) {
         return false;
     }
-    return true;
-    int diffcol = difference(movement->col, piece->col);
-    int diffrow = difference(movement->row, piece->row);
-    if (diffcol != diffrow) {
+    if (bishop_simple(piece->col, piece->row, movement->col, movement->row) == false) {
         return false;
     }
-    //TODO CHECK CHECK
+    int kingrow;
+    int kingcol;
+    lookforking(piece, &kingrow, &kingcol, gameboard);
+    if (movement->check && !bishop_simple(movement->col, movement->row, kingcol, kingrow)) {
+        return false;
+    }
+    if (!movement->check && bishop_simple(movement->col, movement->row, kingcol, kingrow)) {
+        return false;
+    }
+
+    return true;
 }
 
 static bool knight_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
@@ -264,17 +339,20 @@ static bool knight_movement(struct gameboard* gameboard, struct piece* piece, st
     if (movement->crown_type != NONE) {
         return false;
     }
-    return true;
-    int diffcol = difference(movement->col, piece->col);
-    int diffrow = difference(movement->row, piece->row);
-    bool checkmov = false;
-    if ((diffcol == 2 && diffrow == 1) || (diffcol == 1 && diffrow == 2)) {
-        checkmov = true;
-    }
-    if (checkmov == false) {
+    if (knight_simple(piece->col, piece->row, movement->col, movement->row) == false) {
         return false;
     }
-    //TODO CHECK CHECK
+    int kingrow;
+    int kingcol;
+    lookforking(piece, &kingrow, &kingcol, gameboard);
+    if (movement->check && !knight_simple(movement->col, movement->row, kingcol, kingrow)) {
+        return false;
+    }
+    if (!movement->check && knight_simple(movement->col, movement->row, kingcol, kingrow)) {
+        return false;
+    }
+   
+    return true;
 }
 
 static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
@@ -316,9 +394,71 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
     if (movement->crown_type == NONE && finalrow) {
         return false;
     }
-    if (movement->crown_type == PAWN) {
+    if (movement->crown_type == PAWN || movement->crown_type == KING) {
         return false;
     }
     //TODO CHECK CHECK
+    int kingrow;
+    int kingcol;
+    lookforking(piece, &kingcol, &kingrow, gameboard);
+    bool isincheck;
+    switch (movement->crown_type) {
+        case NONE:
+            isincheck = true;
+            if (difference(movement->col, kingcol) != 1) {
+                isincheck = false;
+            }
+            if (difference(movement->row, kingrow) != 1) {
+                isincheck = false;
+            }
+            if (piece->color == WHITE && kingrow < movement->row) {
+                isincheck = false;
+            }
+            if (piece->color == BLACK && kingrow > movement->row) {
+                isincheck = false;
+            }
+            if (movement->check && !isincheck) {
+                return false;
+            }
+            if (!movement->check && isincheck) {
+                return false;
+            }
+            break;
+        case QUEEN:
+            if (movement->check && !rook_simple(movement->col, movement->row, kingcol, kingrow) && 
+                    !bishop_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            if (!movement->check && (rook_simple(movement->col, movement->row, kingcol, kingrow) ||
+                        bishop_simple(movement->col, movement->row, kingcol, kingrow))) {
+                return false;
+            }
+            break;
+        case BISHOP:
+            if (movement->check && !bishop_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            if (!movement->check && bishop_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            break;
+        case KNIGHT:
+            if (movement->check && !knight_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            if (!movement->check && knight_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            break;
+        case ROOK:
+            if (movement->check && !rook_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            if (!movement->check && rook_simple(movement->col, movement->row, kingcol, kingrow)) {
+                return false;
+            }
+            break;
+    }
+    return true;
 }
 
