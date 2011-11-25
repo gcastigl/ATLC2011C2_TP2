@@ -31,12 +31,22 @@ struct movement * get_castle_movement ( bool is_short);
 void add_crown( struct movement * mv, enum piece_type piece );
 enum piece_type get_piece_type ( char piece);
 struct movement *  add_check( struct movement * mv, char val );
+void set_piece_types( void ) ;
+void print_move( struct movement * mv);
+void assign_color ( struct movement * mv, bool is_white);
+void set_move ( int round, struct movement * mv, bool is_white);
+void make_moves ( struct gameboard * gb);
 
 struct options opts;
 
 int curr_round = 0;
 
 void update_options( int opts, char * str);
+
+enum piece_type piece_types[30] = {0};
+
+struct movement * movs[MAX_ROUNDS][2] = {0};
+
 
 %}
 
@@ -79,12 +89,14 @@ void update_options( int opts, char * str);
 
 %type <string> program
 %type <string> option
-%type <string> game
+%type <num> game
+%type <num> round;
 
 %type <mv> normal_move;
 %type <mv> move;
 %type <mv> pawn_move;
 %type <mv> castle;
+
 
 %error-verbose
 
@@ -108,7 +120,6 @@ option:
            }
       }
     | INITIAL_RESULT_TOKEN FINALRESULT END_TOKEN {
-printf("Setting the result!");
            opts.result = $2;
       }
     | INITIAL_ROUND_TOKEN INTEGER END_TOKEN {
@@ -118,14 +129,14 @@ printf("Setting the result!");
 ;
 
 game:
-      round SPACE move SPACE move SPACE game {;}
-    | round SPACE move SPACE FINALRESULT     {;}
-    | FINALRESULT                            {;}
+      round SPACE move SPACE move SPACE game {assign_color($3, true); assign_color ( $5, false); set_move( $1, $3, true); set_move($1,$5,false); }
+    | round SPACE move SPACE FINALRESULT     {assign_color($3, true); set_move($1, $3, true); }
+    | FINALRESULT                            {printf("Final result: %c\n", $1 + '0');}
     | {;}
     ;
 
 round:
-    ROUND               { ; }
+    ROUND               { $$ = $1; }
 ;
 
 move:
@@ -136,7 +147,7 @@ move:
 
 normal_move:
       PIECE COL ROW             { $$=get_movement($1, $2, $3, 0, 0, false); }
-    | PIECE CAPTURE COL ROW     { $$=get_movement($1, $2, $3, 0, 0, true);}
+    | PIECE CAPTURE COL ROW     { $$=get_movement($1, $3, $4, 0, 0, true);}
     | PIECE COL COL ROW         { $$=get_movement($1, $3, $4, $2, 0, false);}
     | PIECE COL CAPTURE COL ROW { $$=get_movement($1, $4, $5, $2, 0, true);}
     | PIECE ROW COL ROW         { $$=get_movement($1, $3, $4, 0, $2, false);}
@@ -147,7 +158,7 @@ pawn_move:
       COL ROW                             {$$=get_movement('P', $1, $2, 0, 0, false);}
     | COL ROW COL ROW                     {$$=get_movement('P', $3, $4, $1, $2, true);}
     | COL CAPTURE COL ROW                 {$$=get_movement('P', $3, $4, $1, 0, true);}
-    | COL ROW CAPTURE COL ROW             {$$=get_movement('P', $3, $4, $1, $2, true);}
+    | COL ROW CAPTURE COL ROW             {$$=get_movement('P', $4, $5, $1, $2, true);}
     | COL ROW CROWN PIECE                 {$$=get_movement('P', $1, $2, 0, 0, false); add_crown($$, $4); }
     | COL CAPTURE COL ROW CROWN PIECE     {$$=get_movement('P', $3, $4, $1, 0, true); add_crown($$, $6); }
     | COL ROW CAPTURE COL ROW CROWN PIECE {$$=get_movement('P', $4, $5, $1, $2, true); add_crown($$, $7);}
@@ -167,11 +178,57 @@ check:
 
 %%
 
+void set_move ( int round, struct movement * mv, bool is_white ) {
+
+	int dy = 1;
+	if( is_white )
+		dy = 0;
+	movs[round][dy] = mv;
+
+
+}
+
+//Debugging
+
+void print_move( struct movement * mv) {
+
+	if(mv->color == WHITE)
+		printf("White: ");
+	else
+		printf("Black: ");
+	if(mv->castle_kingside | mv->castle_queenside){
+		if(mv->castle_kingside)
+			printf("Kingside Castle");
+		else
+			printf("Queenside Castle");
+	}
+	else {
+		printf("Piece Type: %d, from %c %c , to %c %c ", mv->piece_type, mv->from_col == 0 ? '0': mv->from_col, mv->from_row + '0', mv->col, mv->row + '0');
+		if(mv->captures)
+			printf("CAPTURES ");
+		if(mv->check)
+			printf("CHECK ");
+		if(mv->checkmate)
+			printf("CHECKMATE ");
+	}
+	printf("\n");
+
+}
+
 
 enum piece_type get_piece_type ( char piece) {
 
-	//todo, vector bobo
-	return 0;
+	
+	return piece_types[piece - 'A'];
+}
+
+void assign_color ( struct movement * mv, bool is_white) {
+
+	if( is_white )
+		mv->color = WHITE;
+	else
+		mv->color = BLACK;
+
 }
 
 void add_crown( struct movement * mv, enum piece_type piece ){
@@ -286,9 +343,46 @@ void print_options( struct options o ) {
     printf("Result: %d\n", o.result);
 }
 
+void set_piece_types( void ) {
+
+	
+	piece_types['P' - 'A'] = PAWN;
+	piece_types['B' - 'A'] = BISHOP;
+	piece_types['N' - 'A'] = KNIGHT;
+	piece_types['R' - 'A'] = ROOK;
+	piece_types['K' - 'A'] = KING;
+	piece_types['Q' - 'A'] = QUEEN;
+	
+
+}
+
+void make_moves(struct gameboard * gb) {
+
+	int i,j;
+	for( i = 1 ; ; i ++ ) {
+		for( j = 0 ; j < 2 ; j ++ ) {
+			if(movs[i][j] == 0)
+				return;
+			/*bool ret = make_move( gb , movs[i][j]);
+			if(!ret){
+				yyerror("Invalid move detected!");
+				print_move ( movs[i][j]);
+				return;
+			}*/
+			print_move(movs[i][j]);
+		}
+	}
+
+}
+
 int main( void ) {
+	set_piece_types();
     yyparse();
-    print_options(opts);
+	//initialize();
+	//struct gameboard *gb =  new_game();
+	struct gameboard * gb = NULL;
+	print_options(opts);
+	make_moves(gb);
     return 0;
 }
 
