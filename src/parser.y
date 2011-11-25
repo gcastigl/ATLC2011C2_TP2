@@ -39,7 +39,6 @@ void make_moves (struct gameboard * gb);
 
 struct options opts;
 
-struct gameboard* gm;
 
 int curr_round = 0;
 
@@ -142,9 +141,9 @@ round:
 ;
 
 move:
-      castle      check { $$ = add_check( $1, $2); }
-    | normal_move check { $$ = add_check( $1, $2); }
-    | pawn_move   check { $$ = add_check( $1, $2); }
+      castle      check {$$ = add_check( $1, $2);   }
+    | normal_move check {$$ = add_check( $1, $2);  }
+    | pawn_move   check {$$ = add_check( $1, $2);  }
 ;
 
 normal_move:
@@ -365,7 +364,7 @@ void make_moves(struct gameboard * gb) {
 		for( j = 0 ; j < 2 ; j ++ ) {
 			if(movs[i][j] == 0)
 				return;
-			bool ret = make_move(gb, movs[i][j]);
+			bool ret = make_move( gb , movs[i][j]);
 			if(!ret){
 				yyerror("Invalid move detected!");
                                 printf("Invalid move detected!");
@@ -373,6 +372,7 @@ void make_moves(struct gameboard * gb) {
 				return;
 			}
 			print_move(movs[i][j]);
+			make_move(movs[i][j]);
 		}
 	}
 
