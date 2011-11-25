@@ -39,6 +39,8 @@ void make_moves ( struct gameboard * gb);
 
 struct options opts;
 
+struct gameboard* gm;
+
 int curr_round = 0;
 
 void update_options( int opts, char * str);
@@ -140,9 +142,9 @@ round:
 ;
 
 move:
-      castle      check {$$ = add_check( $1, $2);}
-    | normal_move check {$$ = add_check( $1, $2);}
-    | pawn_move   check {$$ = add_check( $1, $2);}
+      castle      check {$$ = add_check( $1, $2); make_move(gm, $1);  }
+    | normal_move check {$$ = add_check( $1, $2); make_move(gm, $1); }
+    | pawn_move   check {$$ = add_check( $1, $2); make_move(gm, $1); }
 ;
 
 normal_move:
@@ -377,12 +379,11 @@ void make_moves(struct gameboard * gb) {
 
 int main( void ) {
 	set_piece_types();
-    yyparse();
-	//initialize();
-	//struct gameboard *gb =  new_game();
-	struct gameboard * gb = NULL;
+	initialize();
+	gm =  new_game();
+        yyparse();
 	print_options(opts);
-	make_moves(gb);
+	//make_moves(gb);
     return 0;
 }
 
