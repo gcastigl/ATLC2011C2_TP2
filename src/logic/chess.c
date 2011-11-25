@@ -77,7 +77,34 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
     
     bool moved = false;
 
-    /** TODO: Castling **/
+    if (movement->castle_queenside) {
+
+        // TODO: Check logic? (no hay piezas en el medio, ni rey ni 
+        // torre se movió previamente, y no le hacen jaque en algún lado
+        // intermedio)
+
+        if (movement->color == WHITE) {
+            gameboard->piece[WHITE_KING]->col = 3;
+            gameboard->piece[WHITE_LEFTROOK]->col = 4;
+        } else {
+            gameboard->piece[BLACK_KING]->col = 3;
+            gameboard->piece[BLACK_LEFTROOK]->col = 4;
+        }
+    }
+    if (movement->castle_kingside) {
+        if (movement->color == WHITE) {
+            gameboard->piece[WHITE_KING]->col = 7;
+            gameboard->piece[WHITE_RIGHTROOK]->col = 6;
+        } else {
+            gameboard->piece[BLACK_KING]->col = 7;
+            gameboard->piece[BLACK_RIGHTROOK]->col = 6;
+        }
+    }
+
+    if (movement->castle_queenside || movement->castle_kingside) {
+        frontend_process_move(gameboard, NULL, NULL);
+        return false;
+    }
 
     for (int i = 0; i < 32; i++) {
 
@@ -88,6 +115,7 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
             if (movement_function[piece->type](gameboard, piece, movement)) {
                 bool move_this = true;
                 
+                        printf("Checkpinto 0\n");
                 /** 
                  * This series of checks are for optional movement data
                  */
@@ -121,6 +149,7 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                     } else {
 
                         moved = true;
+                        printf("Checkpinto 1\n");
 
                         /** Capture logic **/
                         if (movement->captures) {
@@ -144,21 +173,20 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                             piece->type = movement->crown_type;
                         }
 
+                        printf("Checkpinto 2\n");
+
                         /** Move logic **/
                         piece->row = movement->row;
                         piece->col = movement->col;
 
-                        frontend_process_move(gameboard, piece, movement);
                     }
                 }
             }
         }
     }
+    frontend_process_move(gameboard, NULL, NULL);
 
-    if (moved) {
-        return false;
-    }
-    return true;
+    return moved;
 }
 
 static int difference(uint8 from, uint8 to) {

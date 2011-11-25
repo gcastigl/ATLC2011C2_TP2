@@ -237,11 +237,6 @@ RESULT_DRAW     "1/2-1/2"
                     }
 }
 
-{WHITESPACE}        {
-                        printf("Whitespace ignored\n");
-                        fflush(stdout);
-                    }
-
 .                   {
                         printf("Warning! Ignoring: %s\n", yytext);
                         fflush(stdout);

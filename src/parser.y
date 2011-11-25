@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "./logic/chess.h"
+#include "chess.h"
 
 #define WHITE_WINS 1
 #define DRAW_GAME 2
@@ -25,7 +25,7 @@
 #define MAX_ROUNDS 100
 
 int yylex(void);
-void yyerror(char * s);
+void yyerror(const char * s);
 struct movement * get_movement( char piece, uint8 col, uint8 row, uint8 from_col, uint8 from_row,  bool capture);
 struct movement * get_castle_movement ( bool is_short);
 void add_crown( struct movement * mv, enum piece_type piece );
@@ -35,7 +35,7 @@ void set_piece_types( void ) ;
 void print_move( struct movement * mv);
 void assign_color ( struct movement * mv, bool is_white);
 void set_move ( int round, struct movement * mv, bool is_white);
-void make_moves ( struct gameboard * gb);
+void make_moves (struct gameboard * gb);
 
 struct options opts;
 
@@ -142,9 +142,9 @@ round:
 ;
 
 move:
-      castle      check {$$ = add_check( $1, $2); make_move(gm, $1);  }
-    | normal_move check {$$ = add_check( $1, $2); make_move(gm, $1); }
-    | pawn_move   check {$$ = add_check( $1, $2); make_move(gm, $1); }
+      castle      check { $$ = add_check( $1, $2); }
+    | normal_move check { $$ = add_check( $1, $2); }
+    | pawn_move   check { $$ = add_check( $1, $2); }
 ;
 
 normal_move:
@@ -327,7 +327,7 @@ int get_result ( int white, int  black ) {
     return ret;
 }
 
-void yyerror(char * s){
+void yyerror(const char * s){
   
     fprintf(stderr, "%s\n", s);
     return;
@@ -365,12 +365,13 @@ void make_moves(struct gameboard * gb) {
 		for( j = 0 ; j < 2 ; j ++ ) {
 			if(movs[i][j] == 0)
 				return;
-			/*bool ret = make_move( gb , movs[i][j]);
+			bool ret = make_move(gb, movs[i][j]);
 			if(!ret){
 				yyerror("Invalid move detected!");
-				print_move ( movs[i][j]);
+                                printf("Invalid move detected!");
+				print_move(movs[i][j]);
 				return;
-			}*/
+			}
 			print_move(movs[i][j]);
 		}
 	}
@@ -380,10 +381,10 @@ void make_moves(struct gameboard * gb) {
 int main( void ) {
 	set_piece_types();
 	initialize();
-	gm =  new_game();
         yyparse();
+	gm = new_game();
 	print_options(opts);
-	//make_moves(gb);
+	make_moves(gm);
     return 0;
 }
 

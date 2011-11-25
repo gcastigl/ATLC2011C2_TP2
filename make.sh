@@ -7,11 +7,13 @@ cd ./bin
 
 # variables
 FLAGS='-Wall -pedantic -std=c99'
-INCLUDE='../src/'
+INCLUDE='-I../src/ -I../src/logic/ -I../src/frontend -I.'
+LIBS='-lSDL -lfl -lSDL_image'
 
 # Compile lex files
-touch chess.c
+bison -yd ../src/parser.y
+flex ../src/lexer.l
 
 # Compile and link with other C sources
-gcc $FLAGS -I$INCLUDE *.c ../src/logic/*.c -lfl -o -g
+gcc $FLAGS $INCLUDE *.c ../src/logic/*.c ../src/frontend/*.c $LIBS -o ../chess -g
 

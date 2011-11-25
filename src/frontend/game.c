@@ -21,22 +21,26 @@ void frontend_initialize() {
    
     if (!(screen = SDL_SetVideoMode(WIDTH, HEIGHT, DEPTH, SDL_HWSURFACE)))
     {
+        printf("Can't initialize SDL");
         SDL_Quit();
     }
 
-    board = IMG_Load("../res/images/board.png");
+    board = IMG_Load("res/images/board.png");
+    if (board == NULL) {
+        printf("Couldn't load board");
+    }
 
     char path[50];
     
-    strcpy(path, "../res/images/piece__.png");
+    strcpy(path, "res/images/piece__.png");
 
     for (enum color color = WHITE; color <= BLACK; color++) {
         
-        path[19] = color + '1';
+        path[16] = color + '1';
 
         for (enum piece_type piece = KING; piece <= PAWN; piece++) {
             
-            path[20] = piece + '0';
+            path[17] = piece + '0';
 
             pieces[color][piece] = IMG_Load(path);
 
@@ -100,7 +104,7 @@ void frontend_process_capture(struct gameboard* gameboard, struct piece* piece) 
 
 void frontend_process_move(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
 
-    // TODO: colorear la ficha que se acaba de mover
+    // Wishlist: colorear la ficha que se acaba de mover
     draw_gameboard(gameboard);
     wait_for_keypress();
 }

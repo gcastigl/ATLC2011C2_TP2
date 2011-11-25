@@ -34,6 +34,13 @@ struct options {
 };
 
 
+#define WHITE_KING 0
+#define WHITE_LEFTROOK 2
+#define WHITE_RIGHTROOK 3
+
+#define BLACK_KING 16
+#define BLACK_LEFTROOK 18
+#define BLACK_RIGHTROOK 19
 /**
  * A piece in the board. It has an ID: a number from 1 to 32 included. Pieces
  * from 1 to 16 are for the white player, from 17 to 32 are black player's.
