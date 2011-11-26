@@ -46,7 +46,7 @@ void update_options( int opts, char * str);
 
 enum piece_type piece_types[30] = {0};
 
-struct movement * movs[MAX_ROUNDS][2] = {0};
+struct movement * movs[MAX_ROUNDS][2];
 
 
 %}
@@ -372,7 +372,7 @@ void make_moves(struct gameboard * gb) {
 				return;
 			}
 			print_move(movs[i][j]);
-			make_move(movs[i][j]);
+			make_move( gb, movs[i][j]);
 		}
 	}
 
@@ -380,9 +380,10 @@ void make_moves(struct gameboard * gb) {
 
 int main( void ) {
 	set_piece_types();
+	memset(movs, 0, sizeof(struct movement *) * 2 * MAX_ROUNDS);
 	initialize();
         yyparse();
-	gm = new_game();
+	struct gameboard * gm = new_game();
 	print_options(opts);
 	make_moves(gm);
     return 0;
