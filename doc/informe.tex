@@ -88,6 +88,21 @@ Finalmente, un módulo se encargaba del \textit{frontend} que implica la present
 
 \subsection{Estructuras elegidas}
 
+Al comenzar a armar las estructuras a usarse en la lógica interna de la aplicación, contamos como basico contar con estructuras
+para representar el tablero y estructuras para representar las fichas. Después de cierto debate, decidimos apropiado que nuestro
+tablero sea simplemente un vector de las 32 fichas, agregando dentro de la estructura ficha variables representando la fila y la 
+columna. Esto se decidió ya que los casilleros no tienen ninguna propiedad en particular más que contener fichas o su color 
+(sencillamente calculable).
+
+Las fichas, contienen (además de su fila y su columna actual) su identificador único, su tipo de ficha, su color y si se encuentra 
+viva.
+
+Acompañadas de estas estructuras contabamos con metodos sencillos de representar los colores y los tipos de ficha (\textit{enums}).
+
+Por otra parte, contamos con ciertas estructuras que representan lo que se lee del archivo de origen, estas son las estructuras que 
+representan cada movimiento y la que representa el encabezado de cada archivo. Estas estructuras se definieron de forma sencilla a 
+partir de los \textit{tokens} dados por el analizador sintactico.
+
 \subsection{Lógica interna de la aplicación}
 
 \subsection{Presentación gráfica}
