@@ -344,7 +344,14 @@ void print_options( struct options o ) {
     printf("Black Player: %s\n", o.black_player);
     printf("Round: %d\n", o.round);
     printf("Year: %d, Month: %d, Day: %d\n", o.year, o.month, o.day);
-    printf("Result: %d\n", o.result);
+	printf("Result: ");
+	switch(o.result) {
+		case WHITE_WINS: printf("White wins");break;
+		case DRAW_GAME: printf("Draw");break;
+		case BLACK_WINS: printf("Black Wins");break;
+		default: printf("Unknown");break;
+	}
+    printf("\n", o.result);
 }
 
 void set_piece_types( void ) {
