@@ -268,9 +268,12 @@ struct movement * get_movement( char piece, uint8 col, uint8 row, uint8 from_col
 	enum piece_type piece_type = get_piece_type(piece);
 	struct movement * mv = malloc(sizeof(struct movement));
 	mv->piece_type = piece_type;
-	mv->col = col;
+	mv->col = col - 'a';
 	mv->row = row;
-	mv->from_col = from_col;
+	if (from_col) 
+		mv->from_col = from_col - 'a';
+	else
+		mv->from_col = 0;
 	mv->from_row = from_row;
 	mv->captures = capture;
 	mv->castle_kingside = false;

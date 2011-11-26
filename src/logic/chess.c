@@ -205,10 +205,12 @@ static bool check_valid_coordenate(uint8 col, uint8 row) {
 }
 
 static bool check_capture(struct movement* movement, struct gameboard* gameboard) {
-    if (movement->captures && movement->piece_type == NONE) {
-        return false;
-    }
-    if (!movement->captures && movement->piece_type != NONE) {
+	if(!movement->captures) {
+			//no capture, always ok
+			return true;
+		
+	}
+    if (movement->piece_type != NONE) {
         return false;
     }
     return true;
@@ -385,15 +387,18 @@ static bool knight_movement(struct gameboard* gameboard, struct piece* piece, st
 
 static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
 	if (check_valid_coordenate(movement->col, movement->row) == false) {
+		printf("Aca devolvi false1!\n");
         return false;
     }
     if (check_capture(movement, gameboard) == false) {
+		printf("Aca devolvi false2!\n");
         return false;
     }
-    return true;
+    //return true;
     //CHECK IF PAWN IS GOING FORWARD
     int diffrow = piece->row - movement->row;
     if ((diffrow > 0 && piece->color == WHITE) || (diffrow < 0 && piece->color == BLACK)) {
+		printf("Aca devolvi false3!\n");
         return false;
     }
     int diffcol = difference(movement->col, piece->col);
@@ -417,10 +422,12 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
         finalrow == true;
     }
     if (movement->crown_type != NONE && !finalrow) {
+		printf("Aca devolvi false4!\n");
         return false;
     }
     if (movement->crown_type == NONE && finalrow) {
-        return false;
+        printf("Aca devolvi false5!\n");
+		return false;
     }
     if (movement->crown_type == PAWN || movement->crown_type == KING) {
         return false;
