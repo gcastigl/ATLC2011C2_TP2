@@ -303,7 +303,7 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
             && movement->crown_type != PAWN
             && movement->crown_type != KING
         ){
-            checkmove = true;
+            checkmov = true;
         }
     }
     return checkmov;
