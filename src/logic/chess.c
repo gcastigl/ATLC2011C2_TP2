@@ -10,6 +10,8 @@ static bool bishop_movement(struct gameboard*, struct piece*, struct movement*);
 static bool knight_movement(struct gameboard*, struct piece*, struct movement*);
 static bool pawn_movement(struct gameboard*, struct piece*, struct movement*);
 bool check_for_piece ( struct gameboard * , int , int);
+enum color check_for_color ( struct gameboard * gb , int col, int row) ;
+
 /**
  * Initialize constant data structures.
  */
@@ -35,6 +37,15 @@ void initialize() {
     movement_function[PAWN] = pawn_movement;
 }
 
+enum color check_for_color ( struct gameboard * gb , int col, int row) {
+	
+	int i;
+	for( i = 0 ; i < 32 ; i ++ )
+		if(gb->piece[i]->alive && gb->piece[i]->col == col && gb->piece[i]->row == row)
+			return gb->piece[i]->color;
+	return 3;
+	
+}
 
 bool check_for_piece ( struct gameboard * gb, int col, int row) {
 	
@@ -161,12 +172,12 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                  */
                 if (move_this) {
 
-                 //   if (moved) {
-				//		printf("falle aca 4\n");
-                 //       /** Error: already moved with this movement **/
-                 //       return false;
+                    if (moved) {
+						printf("falle aca 4\n");
+                        /** Error: already moved with this movement **/
+                        return false;
 
-                   // } else {
+                    } else {
 
                         moved = true;
                         printf("Checkpinto 1\n");
@@ -199,7 +210,7 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                         piece->row = movement->row;
                         piece->col = movement->col;
 
-//                    }
+                    }
                 }
             }
         }
@@ -297,6 +308,9 @@ static bool rook_movement(struct gameboard* gameboard, struct piece* piece, stru
 			}
 			col += dir;
 		}
+		
+		if(check_for_color ( gameboard, movement->col, movement->row) == piece->color)
+			return false;
 		return true;
 	}
 	else{
@@ -312,6 +326,8 @@ static bool rook_movement(struct gameboard* gameboard, struct piece* piece, stru
 			}
 			row += dir;
 		}
+		if(check_for_color ( gameboard, movement->col, movement->row) == piece->color)
+			return false;
 		return true;
 		
 	}
