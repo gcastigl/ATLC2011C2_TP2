@@ -268,7 +268,7 @@ static void lookforking(struct piece* piece, int* row, int* col, struct gameboar
     if (piece->color == WHITE) {
         tolook = BLACK;
     }
-    for (int i = 1; i<=32; i++) {
+    for (int i = 0; i<32; i++) {
         if (gameboard->piece[i]->color == tolook && gameboard->piece[i]->type == KING) {
             *row = gameboard->piece[i]->row;
             *col = gameboard->piece[i]->col;
