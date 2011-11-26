@@ -273,6 +273,9 @@ static bool knight_movement(struct gameboard* gameboard, struct piece* piece, st
 static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
 
     //CHECK IF PAWN IS GOING FORWARD
+    
+    printf("Pawn: %d, %d going to %d, %d", piece->col, piece->row, movement->col, movement->row);
+    
     int diffrow = piece->row - movement->row;
     if ((diffrow > 0 && piece->color == WHITE) || (diffrow < 0 && piece->color == BLACK)) {
         return false;
@@ -280,6 +283,9 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
 
     int diffcol = difference(movement->col, piece->col);
     diffrow = difference(movement->row, piece->row);
+	
+	printf(" diffrow: %d, diffcol: %d \n", diffrow, diffcol);
+	
     bool checkmov = false;
 
     if (diffcol == 0 && diffrow == 1 && !movement->captures) {
