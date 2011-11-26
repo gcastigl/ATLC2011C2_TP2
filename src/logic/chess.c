@@ -90,6 +90,8 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
             gameboard->piece[BLACK_KING]->col = 3;
             gameboard->piece[BLACK_LEFTROOK]->col = 4;
         }
+        frontend_process_move(gameboard, NULL, NULL);
+        return true;
     }
     if (movement->castle_kingside) {
         if (movement->color == WHITE) {
@@ -99,6 +101,8 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
             gameboard->piece[BLACK_KING]->col = 7;
             gameboard->piece[BLACK_RIGHTROOK]->col = 6;
         }
+        frontend_process_move(gameboard, NULL, NULL);
+        return true;
     }
 
     if (movement->castle_queenside || movement->castle_kingside) {

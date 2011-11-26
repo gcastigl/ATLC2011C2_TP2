@@ -204,7 +204,7 @@ void print_move( struct movement * mv) {
 			printf("Queenside Castle");
 	}
 	else {
-		printf("Piece Type: %d, from %c %c , to %c %c ", mv->piece_type, mv->from_col == 0 ? '0': mv->from_col, mv->from_row + '0', mv->col, mv->row + '0');
+		printf("Piece Type: %d, from %c %c , to %c %c ", mv->piece_type,  mv->from_col + '0', mv->from_row + '0', mv->col + '0', mv->row + '0');
 		if(mv->captures)
 			printf("CAPTURES ");
 		if(mv->check)
@@ -374,6 +374,7 @@ void make_moves(struct gameboard * gb) {
 				print_move(movs[i][j]);
 				return;
 			}
+			printf("Round %d\n", i);
 			print_move(movs[i][j]);
 			make_move( gb, movs[i][j]);
 		}
