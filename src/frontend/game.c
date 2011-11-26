@@ -25,22 +25,22 @@ void frontend_initialize() {
         SDL_Quit();
     }
 
-    board = IMG_Load("../res/images/board.png");
+    board = IMG_Load("./res/images/board.png");
     if (board == NULL) {
         printf("Couldn't load board");
     }
 
     char path[50];
     
-    strcpy(path, "../res/images/piece__.png");
+    strcpy(path, "./res/images/piece__.png");
 
     for (enum color color = WHITE; color <= BLACK; color++) {
         
-        path[19] = color + '1';
+        path[18] = color + '1';
 
         for (enum piece_type piece = KING; piece <= PAWN; piece++) {
             
-            path[20] = piece + '0';
+            path[19] = piece + '0';
 
             pieces[color][piece] = IMG_Load(path);
 
