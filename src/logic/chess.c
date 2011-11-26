@@ -9,7 +9,7 @@ static bool rook_movement(struct gameboard*, struct piece*, struct movement*);
 static bool bishop_movement(struct gameboard*, struct piece*, struct movement*);
 static bool knight_movement(struct gameboard*, struct piece*, struct movement*);
 static bool pawn_movement(struct gameboard*, struct piece*, struct movement*);
-
+bool check_for_piece ( struct gameboard * , int , int);
 /**
  * Initialize constant data structures.
  */
@@ -33,6 +33,19 @@ void initialize() {
     movement_function[BISHOP] = bishop_movement;
     movement_function[KNIGHT] = knight_movement;
     movement_function[PAWN] = pawn_movement;
+}
+
+
+bool check_for_piece ( struct gameboard * gb, int col, int row) {
+	
+	int i;
+	for( i = 0 ; i < 32 ; i ++ )
+		if(gb->piece[i]->alive && gb->piece[i]->col == col && gb->piece[i]->row == row)
+			return true;
+	return false;
+
+	
+	
 }
 
 /**
@@ -126,16 +139,19 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
 
                 if (movement->piece_type) {
                     if (piece->type != movement->piece_type) {
+						printf("Falle aca 1\n");
                         move_this = false;
                     }
                 }
                 if (move_this && movement->from_col) {
                     if (movement->from_col != piece->col) {
+						printf("Falle aca 2\n");
                         move_this = false;
                     }
                 }
                 if (move_this && movement->from_row) {
                     if (movement->from_row != piece->row) {
+						printf("Falle aca 3\n");
                         move_this = false;
                     }
                 }
@@ -145,12 +161,12 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                  */
                 if (move_this) {
 
-                    if (moved) {
+                 //   if (moved) {
+				//		printf("falle aca 4\n");
+                 //       /** Error: already moved with this movement **/
+                 //       return false;
 
-                        /** Error: already moved with this movement **/
-                        return false;
-
-                    } else {
+                   // } else {
 
                         moved = true;
                         printf("Checkpinto 1\n");
@@ -183,7 +199,7 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                         piece->row = movement->row;
                         piece->col = movement->col;
 
-                    }
+//                    }
                 }
             }
         }
@@ -212,8 +228,10 @@ static bool rook_simple(uint8 fromcol, uint8 fromrow, uint8 tocol, uint8 torow)
 {
     int diffcol = difference(tocol, fromcol);
     int diffrow = difference(torow, fromrow);
+	
 
     return (diffcol || diffrow) && !(diffcol && diffrow);
+	
 }
 
 static bool bishop_simple(uint8 fromcol, uint8 fromrow, uint8 tocol, uint8 torow) {
@@ -250,14 +268,57 @@ static bool king_movement(struct gameboard* gameboard, struct piece* piece, stru
 }
 
 static bool queen_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
-    return rook_movement(gameboard, piece, movement) || bishop_movement(gameboard, piece, movement);
+	
+	return true;
+	
 }
 
 static bool rook_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
     if (movement->crown_type != NONE) {
         return false;
     }
-    return rook_simple(piece->col, piece->row, movement->col, movement->row);
+    bool ret =  rook_simple(piece->col, piece->row, movement->col, movement->row);
+	if(ret == false)
+		return ret;
+	int diffcol = difference(movement->col, piece->col);
+    int diffrow = difference(movement->row, piece->row);
+	
+	
+	
+	int dir;
+	if(diffcol){
+		dir = (movement->col - piece->col) / diffcol;
+		int col = piece->col;
+		col += dir;
+		while(col != movement-> col) {
+			
+			if( check_for_piece(gameboard, col,piece->row) ){
+				return false;
+			}
+			col += dir;
+		}
+		return true;
+	}
+	else{
+		if(diffrow == 0)
+			return false;
+		dir = (movement->row - piece->row) / diffrow;
+		int row = piece->row;
+		row += dir;
+		while(row != movement-> row) {
+			
+			if( check_for_piece(gameboard, piece->col,row) ){
+				return false;
+			}
+			row += dir;
+		}
+		return true;
+		
+	}
+	int row = piece->row;
+	
+	
+	
 }
 
 static bool bishop_movement(struct gameboard* gameboard, struct piece* piece, struct movement* movement) {
@@ -278,7 +339,7 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
 
     //CHECK IF PAWN IS GOING FORWARD
     
-    printf("Pawn: %d, %d going to %d, %d", piece->col, piece->row, movement->col, movement->row);
+    //printf("Pawn: %d, %d going to %d, %d", piece->col, piece->row, movement->col, movement->row);
     
     int diffrow = piece->row - movement->row;
     if ((diffrow > 0 && piece->color == WHITE) || (diffrow < 0 && piece->color == BLACK)) {
@@ -288,7 +349,7 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
     int diffcol = difference(movement->col, piece->col);
     diffrow = difference(movement->row, piece->row);
 	
-	printf(" diffrow: %d, diffcol: %d \n", diffrow, diffcol);
+	//printf(" diffrow: %d, diffcol: %d \n", diffrow, diffcol);
 	
     bool checkmov = false;
 
