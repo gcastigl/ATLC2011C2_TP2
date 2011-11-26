@@ -123,7 +123,17 @@ castle $\Rightarrow$ SHORTCASTLE   | LONGCASTLE
 
 check $\Rightarrow$ CHECK  | CHECKMATE  | $\lambda$
 
-\subsection{ Atributos de símbolos no terminales}
+\subsection{Atributos de símbolos no terminales }
+
+La mayoría de los \textit{tokens} devueltos por \textit{lex} tienen un valor asociado reperesntando qué es lo que se leyó. Por ejemplo, 
+el atributo COL tiene el valor de la columna, ROW el valor de la fila, PIECE el carácter representando la pieza, etc.
+De los símbolos no terminales, los únicos con valor son normal_move, pawn_move, move, castle, check y round. Round posee el valor númerico de la ronda, 
+check un valor representando si hubo jaque, jaquemate o nada, y castle un valor representando si el enroque fue corto o largo. Normal_move, pawn_move 
+y move poseen una estructura de tipo movimiento que posee muchos atributos, entre ellos, la pieza, su destino, si hubo jaque o no, enroque, etc. En las 
+reescrituras del símbolo game, se llenan en esats estructuras devueltas por los movimientos asignándoles el color y se guardan en un vector para luego 
+ser usadas por el \textit{front-end}.
+
+\subsection{Lógica interna de la aplicación }
 
 Al comenzar a armar las estructuras a usarse en la lógica interna de la aplicación, contamos como basico contar con estructuras
 para representar el tablero y estructuras para representar las fichas. Después de cierto debate, decidimos apropiado que nuestro
@@ -140,15 +150,7 @@ Por otra parte, contamos con ciertas estructuras que representan lo que se lee d
 representan cada movimiento y la que representa el encabezado de cada archivo. Estas estructuras se definieron de forma sencilla a 
 partir de los \textit{tokens} dados por el analizador sintactico.
 
-\subsection{Lógica interna de la aplicación}
 
-La mayoría de los \textit{tokens} devueltos por \textit{lex} tienen un valor asociado reperesntando qué es lo que se leyó. Por ejemplo, 
-el atributo COL tiene el valor de la columna, ROW el valor de la fila, PIECE el carácter representando la pieza, etc.
-De los símbolos no terminales, los únicos con valor son normal_move, pawn_move, move, castle, check y round. Round posee el valor númerico de la ronda, 
-check un valor representando si hubo jaque, jaquemate o nada, y castle un valor representando si el enroque fue corto o largo. Normal_move, pawn_move 
-y move poseen una estructura de tipo movimiento que posee muchos atributos, entre ellos, la pieza, su destino, si hubo jaque o no, enroque, etc. En las 
-reescrituras del símbolo game, se llenan en esats estructuras devueltas por los movimientos asignándoles el color y se guardan en un vector para luego 
-ser usadas por el \textit{front-end}.
 
 
 
