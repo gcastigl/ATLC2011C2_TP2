@@ -22,9 +22,9 @@ void initialize() {
                    8, 8, 8, 8, 8, 8, 8, 8,
                    7, 7, 7, 7, 7, 7, 7, 7}, sizeof(uint8) * 32);
 
-    memcpy(initial_col, (uint8[]) {4, 5, 1, 8, 3, 6, 2, 7,
+    memcpy(initial_col, (uint8[]) {5, 4, 1, 8, 3, 6, 2, 7,
                    1, 2, 3, 4, 5, 6, 7, 8,
-                   4, 5, 1, 8, 3, 6, 2, 7,
+                   5, 4, 1, 8, 3, 6, 2, 7,
                    1, 2, 3, 4, 5, 6, 7, 8}, sizeof(uint8) * 32);
     
     movement_function[KING] = king_movement;
