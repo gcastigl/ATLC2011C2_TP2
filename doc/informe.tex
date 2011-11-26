@@ -157,9 +157,47 @@ partir de los \textit{tokens} dados por el analizador sintactico.
 \newpage
 
 \section{Dificultades encontradas}
+
+Al crear gramáticas con \textit{bison}  es posible encontrarse con conflictos de tipo \textit{shift-reduce}, que es justamente cuando una entrada 
+en la tabla LALR(1) se puede tomar la acción de reducir o ir a otro estado (goto). En estos casos, \textit{bison} no compila. Se puede usar la 
+etiqueta \textit{expect n} donde $n$ es la cantidad de conflictos presentes, para que compile. Sin embargo, lo único que hará \textit{bison} es tomar 
+la acción \textit{default}  de ir a otro estado, es decir, no reducir. Esto no es siempre lo que se quiere. Idealmente uno debe evitar este tipo de 
+conflictos. Se identificaron tres soluciones para resolver este tipo de conflictos:
+\begin{itemize}
+\item Cambiar la gramática, cambiando el lexer y agregando símbolos que toman varios de los símbolos anteriores. Esto sería darle más trabajo al lexer.
+También  se puede hacer uso de los estados que usa el lexer, ya sea los estados izquierda (aquellos encerrados por $<$ o $>$) o estados de tipo derecha (
+pedir, por ejemplo, la cadena $abd|eff$, que signfica pedir la cadena $abd$ si y solo si está seguida por la cadena $eff$). 
+\item Cambiar el parser (\textit{yacc}) y hacer reglas eliminando recursiones  o reglas dispuestas distintas para que no conflictúen. Esto sería darle 
+más trabajo al parser.
+\item Manejar el problema en la parte semántica, es decir, resolverlo en el código $C$. Esto es darle más trabajo al lenguaje que se está usando.
+\end{itemize}
+
+En el desarrollo del trabajo se intentó dividir el trabajo entre estas tres herramientas en una manera que el trabajo de los tres no sea ni trivial ni 
+extremadamente complicado, priorizando la prolijidad del código. Finalmente se logró que la gramática resultanto no tenga conflictos.
+
+
 \newpage
 
 \section{Futuras Extensiones}
+
+\subsection{ Consideraciones }
+
+Como ya se ha explicado en una sección anterior, se asumen muchas cosas en cuanto al formato de entrada del archivo. Se podría modificar la gramática para 
+ser más laxos en cuanto a qué se acepta y qué no. Por ejemplo, se podrían aceptar las opciones en cualquier orden, permitir espacios de más, etc. Desde ya 
+esto agregaría una complejidad apreciable a la gramática usada y a las reglas de sus producciones.
+
+\subsection{ Formato }
+
+Se podrían aceptar comentarios o más opciones que las siete requeridas. Además, sería interesante poder mostrar comentarios en sus jugadas respectivas. 
+
+\subsection{ Retroceso }
+
+El programa está diseñado para ir solo adelante con las jugadas. Se podría implementar que con una cierta tecla se vaya hacia adelante y con otra hacia atrás, 
+de esa manera se podría hacer un seguimiento del partido con mayor libertad.
+
+\subsection{ Marcado de movimientos }
+
+Se podría marcar el casillero destino y fuente de la última pieza  movida de tal manera de simplificar el seguimiento del partido.
    
 \end{document}
 
