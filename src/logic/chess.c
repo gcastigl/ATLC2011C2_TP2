@@ -143,26 +143,26 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
             if (movement_function[piece->type](gameboard, piece, movement)) {
                 bool move_this = true;
                 
-                        printf("Checkpinto 0\n");
+                       // printf("Checkpinto 0\n");
                 /** 
                  * This series of checks are for optional movement data
                  */
 
                 if (movement->piece_type) {
                     if (piece->type != movement->piece_type) {
-						printf("Falle aca 1\n");
+						//printf("Falle aca 1\n");
                         move_this = false;
                     }
                 }
                 if (move_this && movement->from_col) {
                     if (movement->from_col != piece->col) {
-						printf("Falle aca 2\n");
+						//printf("Falle aca 2\n");
                         move_this = false;
                     }
                 }
                 if (move_this && movement->from_row) {
                     if (movement->from_row != piece->row) {
-						printf("Falle aca 3\n");
+						//printf("Falle aca 3\n");
                         move_this = false;
                     }
                 }
@@ -173,14 +173,14 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                 if (move_this) {
 
                     if (moved) {
-						printf("falle aca 4\n");
+						//printf("falle aca 4\n");
                         /** Error: already moved with this movement **/
                         return false;
 
                     } else {
 
                         moved = true;
-                        printf("Checkpinto 1\n");
+                        //printf("Checkpinto 1\n");
 
                         /** Capture logic **/
                         if (movement->captures) {
@@ -204,7 +204,7 @@ bool make_move(struct gameboard* gameboard, struct movement* movement) {
                             piece->type = movement->crown_type;
                         }
 
-                        printf("Checkpinto 2\n");
+                        //printf("Checkpinto 2\n");
 
                         /** Move logic **/
                         piece->row = movement->row;

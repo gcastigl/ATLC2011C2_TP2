@@ -69,12 +69,11 @@ RESULT_DRAW     "1/2-1/2"
 <INITIAL>{
     {TAG_EVENT_BEGIN} {
                         yylval.num = EVENT_TOK;
-                        printf("Begin of initial\n");
+                        //printf("Begin of initial\n");
                         return (INITIAL_TOKEN);
                       }
     {TAG_CLOSE}       {
-                        printf("End of initial\n");
-                        fflush(stdout);
+                        //printf("End of initial\n");
                         BEGIN SITE;
                         return (END_TOKEN);
                       }
@@ -96,8 +95,8 @@ RESULT_DRAW     "1/2-1/2"
                         yylval.string = malloc(yyleng+1);
                         memcpy(yylval.string, yytext, yyleng);
                         yylval.string[yyleng] = 0;
-                        printf("Content event: %s\n", yytext);
-                        printf("Content length: %d\n", yyleng);
+                        //printf("Content event: %s\n", yytext);
+                        //printf("Content length: %d\n", yyleng);
                         fflush(stdout);
                         return (STRING);
                       }
@@ -108,12 +107,12 @@ RESULT_DRAW     "1/2-1/2"
 <DATE,ROUND_S>{
     {INTEGER}         {
                         yylval.num = atoi(yytext);
-                        printf("Parsed date piece: %d\n", yylval.num);
+                       // printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
     {TAG_UNKNOWN}     {
                         yylval.num = -1;
-                        printf("Parsed date piece: %d\n", yylval.num);
+                        //printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
 }
@@ -236,6 +235,11 @@ RESULT_DRAW     "1/2-1/2"
                         return (SPACE);
                     }
 }
+
+{WHITESPACE}        {
+                        printf("Whitespace ignored\n");
+                        fflush(stdout);
+                    }
 
 .                   {
                         printf("Warning! Ignoring: %s\n", yytext);

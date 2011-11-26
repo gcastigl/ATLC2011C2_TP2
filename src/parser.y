@@ -132,7 +132,7 @@ option:
 game:
       round SPACE move SPACE move SPACE game {assign_color($3, true); assign_color ( $5, false); set_move( $1, $3, true); set_move($1,$5,false); }
     | round SPACE move SPACE FINALRESULT     {assign_color($3, true); set_move($1, $3, true); }
-    | FINALRESULT                            {printf("Final result: %c\n", $1 + '0');}
+    | FINALRESULT                            {;}
     | {;}
     ;
 
