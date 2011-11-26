@@ -383,7 +383,6 @@ void make_moves(struct gameboard * gb) {
 			}
 			printf("Round %d\n", i);
 			print_move(movs[i][j]);
-			make_move( gb, movs[i][j]);
 		}
 	}
 
