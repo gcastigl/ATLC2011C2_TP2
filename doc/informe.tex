@@ -61,32 +61,69 @@
 \newpage
 
 \section{Resumen}
-El trabajo práctico consistia en poder leer un archivo .PGN (archivos estándar para partidas de ajedrez), validarlos y mostrar
-la jugada. Para esto, era necesario leer e interpretar los archivos de entrada con archivos de \textit{lex} y \textit{bison}
- utilizando analizadores sintácticos muy similares a los vistos en clase.
-
+El trabajo práctico consistió en generar un analizador sintáctico de partidas de ajedrez en formato \textit{PGN} 
+para luego mostrar un tablero y poder hacer un seguimiento del partido.
 \newpage
 
 \section{Consideraciones realizadas}
-    No hubo consideraciones externas hechas ya que en caso de errores en los archivos de entradas era nuestro trabajo
-     detectarlos. Por otra parte, dentro de la lógica del programa si se valida que la partida de ajedrez sea coherente 
-      (se valida lo más posible que los movimientos sean coherentes con las reglas del juego y con el estado actual del tablero). \\
+
+\subsection{Formato PGN}
+
+Como indica el enunciado, las partidas de ajedrez DEBEN tener el formato \textit{STG}. Además no se aceptan espacios de más, comentarios 
+o anotaciones de variantes recursivas. Las etiquetas DEBEN aparecer en el orden Event, Site, Date, Round, White, Black, Result.
+ Entre las etiquetas y las jugadas en formato \textit{SAN} debe haber un solo fin de línea y nada más (Nota: Se aceptan los finales de línea 
+tanto de Windows como de Linux).
+
+\subsection{ Validez de jugadas}
+
+Existe una cierta validación de jugadas por parte del analizador, dado que se debe encontrar la pieza que se está moviendo. Esto implica que 
+no pueden existir movimientos imposibles en cuanto a la naturaleza del movimiento de las piezas. Por otra parte, validaciones más complejas como 
+por ejemplo restricciones para enrocar no son validadas.
+
+\subsection{ Interfaz grafica}
+
+Se optó por usar una interfaz gráfica que requiere librería SDL. Por lo tanto para compilar se deben instalar dos paquetes de la librería SDL; la librería 
+estándar y la librería \textit{image}. En particular, en Ubuntu son las librerías \textit{libsdl1.2-dev} y \texgit{libsdl-image1.2-dev}. Debido a estas 
+dependencias que se agregaron, se decidió incluir el archivo compilado en la entrega final.
 
 \newpage
 
 \section{Descripción del desarrollo}
-    Al igual que con el trabajo especial previo, al comenzar tratamos de diferenciar los distintos módulos de trabajo. 
-
- Una parte importante del trabajo implicaban leer el archivo .PGN, y validarlo con un \textit{parser} adecuado.
-Luego, era necesario utilizar un analizador sintáctico para obtener los datos en distintos \textit{tokens}, ubicarlos en distintas
-estructuras que fueron definidas con el proposito de poder procesar las jugadas según las reglas del ajedrez.
-Finalmente, un módulo se encargaba del \textit{frontend} que implica la presentacion gráfica de la aplicación.
-
-\subsection{Parser}
-
+  
 \subsection{Gramatica usada}
 
-\subsection{Estructuras elegidas}
+Notas: Los símbolos terminales son las palabars en mayúscula, que son \textit{tokens} devueltos por \textit{lex}. Los no terminales 
+son aquellas en minúscula.
+
+program $\Rightarrow$ option program | game 
+
+option $\Rightarrow$ INITIAL_TOKEN STRING END_TOKEN  
+
+option $\Rightarrow$ INITIAL_DATE_TOKEN INTEGER '.' INTEGER '.' INTEGER END_TOKEN 
+
+option $\Rightarrow$ INITIAL_ROUND_TOKEN INTEGER END_TOKEN 
+
+game $\Rightarrow$ round SPACE move SPACE move SPACE game | round SPACE move SPACE FINALRESULT | FINALRESULT | $\lambda$
+
+round $\Rightarrow$ ROUND               
+
+move $\Rightarrow$  castle check | normal_move check pawn_move   check 
+
+normal_move $\Rightarrow$ PIECE COL ROW | PIECE CAPTURE COL ROW | PIECE COL COL ROW         
+
+normal_move $\Rightarrow$ PIECE COL CAPTURE COL ROW | PIECE ROW COL ROW | PIECE ROW CAPTURE COL ROW 
+
+pawn_move $\Rightarrow$ COL ROW | COL ROW COL ROW | COL CAPTURE COL ROW  | COL ROW CAPTURE COL ROW      
+       
+pawn_move $\Rightarrow$ COL ROW CROWN PIECE | COL CAPTURE COL ROW CROWN PIECE     
+
+pawn_move $\Rightarrow$ COL ROW CAPTURE COL ROW CROWN PIECE | COL ROW COL ROW CROWN PIECE         
+
+castle $\Rightarrow$ SHORTCASTLE   | LONGCASTLE   
+
+check $\Rightarrow$ CHECK  | CHECKMATE  | $\lambda$
+
+\subsection{ Atributos de símbolos no terminales}
 
 Al comenzar a armar las estructuras a usarse en la lógica interna de la aplicación, contamos como basico contar con estructuras
 para representar el tablero y estructuras para representar las fichas. Después de cierto debate, decidimos apropiado que nuestro
@@ -105,7 +142,15 @@ partir de los \textit{tokens} dados por el analizador sintactico.
 
 \subsection{Lógica interna de la aplicación}
 
-\subsection{Presentación gráfica}
+La mayoría de los \textit{tokens} devueltos por \textit{lex} tienen un valor asociado reperesntando qué es lo que se leyó. Por ejemplo, 
+el atributo COL tiene el valor de la columna, ROW el valor de la fila, PIECE el carácter representando la pieza, etc.
+De los símbolos no terminales, los únicos con valor son normal_move, pawn_move, move, castle, check y round. Round posee el valor númerico de la ronda, 
+check un valor representando si hubo jaque, jaquemate o nada, y castle un valor representando si el enroque fue corto o largo. Normal_move, pawn_move 
+y move poseen una estructura de tipo movimiento que posee muchos atributos, entre ellos, la pieza, su destino, si hubo jaque o no, enroque, etc. En las 
+reescrituras del símbolo game, se llenan en esats estructuras devueltas por los movimientos asignándoles el color y se guardan en un vector para luego 
+ser usadas por el \textit{front-end}.
+
+
 
 \newpage
 
