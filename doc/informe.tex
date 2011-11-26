@@ -61,15 +61,36 @@
 \newpage
 
 \section{Resumen}
+El trabajo práctico consistia en poder leer un archivo .PGN (archivos estándar para partidas de ajedrez), validarlos y mostrar
+la jugada. Para esto, era necesario leer e interpretar los archivos de entrada con archivos de \textit{lex} y \textit{bison}
+ utilizando analizadores sintácticos muy similares a los vistos en clase.
+
 \newpage
 
 \section{Consideraciones realizadas}
+    No hubo consideraciones externas hechas ya que en caso de errores en los archivos de entradas era nuestro trabajo
+     detectarlos. Por otra parte, dentro de la lógica del programa si se valida que la partida de ajedrez sea coherente 
+      (se valida lo más posible que los movimientos sean coherentes con las reglas del juego y con el estado actual del tablero). \\
 
 \newpage
 
 \section{Descripción del desarrollo}
-  
+    Al igual que con el trabajo especial previo, al comenzar tratamos de diferenciar los distintos módulos de trabajo. 
+
+ Una parte importante del trabajo implicaban leer el archivo .PGN, y validarlo con un \textit{parser} adecuado.
+Luego, era necesario utilizar un analizador sintáctico para obtener los datos en distintos \textit{tokens}, ubicarlos en distintas
+estructuras que fueron definidas con el proposito de poder procesar las jugadas según las reglas del ajedrez.
+Finalmente, un módulo se encargaba del \textit{frontend} que implica la presentacion gráfica de la aplicación.
+
+\subsection{Parser}
+
 \subsection{Gramatica usada}
+
+\subsection{Estructuras elegidas}
+
+\subsection{Lógica interna de la aplicación}
+
+\subsection{Presentación gráfica}
 
 \newpage
 
