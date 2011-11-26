@@ -92,6 +92,48 @@ dependencias que se agregaron, se decidió incluir el archivo compilado en la en
   
 \subsection{Gramatica usada}
 
+Notas: Los símbolos terminales son las palabars en mayúscula, que son \textit{tokens} devueltos por \textit{lex}. Los no terminales 
+son aquellas en minúscula.
+
+program $\Rightarrow$ option program | game 
+
+option $\Rightarrow$ INITIAL_TOKEN STRING END_TOKEN  
+
+option $\Rightarrow$ INITIAL_DATE_TOKEN INTEGER '.' INTEGER '.' INTEGER END_TOKEN 
+
+option $\Rightarrow$ INITIAL_ROUND_TOKEN INTEGER END_TOKEN 
+
+game $\Rightarrow$ round SPACE move SPACE move SPACE game | round SPACE move SPACE FINALRESULT | FINALRESULT | $\lambda$
+
+round $\Rightarrow$ ROUND               
+
+move $\Rightarrow$  castle check | normal_move check pawn_move   check 
+
+normal_move $\Rightarrow$ PIECE COL ROW | PIECE CAPTURE COL ROW | PIECE COL COL ROW         
+
+normal_move $\Rightarrow$ PIECE COL CAPTURE COL ROW | PIECE ROW COL ROW | PIECE ROW CAPTURE COL ROW 
+
+pawn_move $\Rightarrow$ COL ROW | COL ROW COL ROW | COL CAPTURE COL ROW  | COL ROW CAPTURE COL ROW      
+       
+pawn_move $\Rightarrow$ COL ROW CROWN PIECE | COL CAPTURE COL ROW CROWN PIECE     
+
+pawn_move $\Rightarrow$ COL ROW CAPTURE COL ROW CROWN PIECE | COL ROW COL ROW CROWN PIECE         
+
+castle $\Rightarrow$ SHORTCASTLE   | LONGCASTLE   
+
+check $\Rightarrow$ CHECK  | CHECKMATE  | $\lambda$
+
+\subsection{ Atributos de símbolos no terminales}
+
+La mayoría de los \textit{tokens} devueltos por \textit{lex} tienen un valor asociado reperesntando qué es lo que se leyó. Por ejemplo, 
+el atributo COL tiene el valor de la columna, ROW el valor de la fila, PIECE el carácter representando la pieza, etc.
+De los símbolos no terminales, los únicos con valor son normal_move, pawn_move, move, castle, check y round. Round posee el valor númerico de la ronda, 
+check un valor representando si hubo jaque, jaquemate o nada, y castle un valor representando si el enroque fue corto o largo. Normal_move, pawn_move 
+y move poseen una estructura de tipo movimiento que posee muchos atributos, entre ellos, la pieza, su destino, si hubo jaque o no, enroque, etc. En las 
+reescrituras del símbolo game, se llenan en esats estructuras devueltas por los movimientos asignándoles el color y se guardan en un vector para luego 
+ser usadas por el \textit{front-end}.
+
+
 \newpage
 
 \section{Dificultades encontradas}
