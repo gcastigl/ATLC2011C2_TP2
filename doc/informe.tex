@@ -83,13 +83,19 @@ por ejemplo restricciones para enrocar no son validadas.
 \subsection{ Interfaz grafica}
 
 Se optó por usar una interfaz gráfica que requiere librería SDL. Por lo tanto para compilar se deben instalar dos paquetes de la librería SDL; la librería 
-estándar y la librería \textit{image}. En particular, en Ubuntu son las librerías \textit{libsdl1.2-dev} y \texgit{libsdl-image1.2-dev}. Debido a estas 
+estándar y la librería \textit{image}. En particular, en Ubuntu son las librerías \textit{libsdl1.2-dev} y \textit{libsdl-image1.2-dev}. Debido a estas 
 dependencias que se agregaron, se decidió incluir el archivo compilado en la entrega final.
 
 \newpage
 
 \section{Descripción del desarrollo}
-  
+  Al igual que con el trabajo especial previo, al comenzar tratamos de diferenciar los distintos módulos de trabajo. 
+
+  Una parte importante del trabajo implicaban leer el archivo .PGN, y validarlo con un \textit{parser} adecuado.
+Luego, era necesario utilizar un analizador sintáctico para obtener los datos en distintos \textit{tokens}, ubicarlos en distintas
+estructuras que fueron definidas con el proposito de poder procesar las jugadas según las reglas del ajedrez.
+Finalmente, un módulo se encargaba del \textit{frontend} que implica la presentacion gráfica de la aplicación.
+
 \subsection{Gramatica usada}
 
 Notas: Los símbolos terminales son las palabars en mayúscula, que son \textit{tokens} devueltos por \textit{lex}. Los no terminales 
@@ -151,7 +157,20 @@ representan cada movimiento y la que representa el encabezado de cada archivo. E
 partir de los \textit{tokens} dados por el analizador sintactico.
 
 
+\subsection{Lógica de la aplicación}
 
+La lógica de la aplicación estaba dada por las reglas del ajedrez y simplemente consistía en corroborar que los movimientos dados
+por el archivo respetasen estas reglas y ejecutar este movimiento para que tanto nuestras estructuras internas esten actualizadas 
+según estos movimientos.
+
+A continuación se presentan algunas cuestiones interesantes que debían ser validadas en este punto de la aplicación:
+\begin{itemize}
+ \item Detectar la ficha que se estaba moviendo.
+ \item Que el movimiento sea valido para el tipo de pieza.
+ \item Capturas.
+ \item Coronaciones.
+ \item Enroques.
+\end{itemize}
 
 
 \newpage
