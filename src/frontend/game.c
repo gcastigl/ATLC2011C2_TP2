@@ -85,8 +85,8 @@ static void draw_gameboard(struct gameboard* gameboard) {
         if (piece->alive) {
             rcDest.x = (piece->col - 1) * IMG_WIDTH;
             rcDest.y = (8 - piece->row) * IMG_HEIGHT;
+            SDL_BlitSurface(pieces[piece->color][piece->type], NULL, screen, &rcDest);
         }
-        SDL_BlitSurface(pieces[piece->color][piece->type], NULL, screen, &rcDest);
     }
     SDL_Flip(screen);
 }
