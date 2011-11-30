@@ -210,7 +210,7 @@ void print_move( struct movement * mv) {
 	if(mv->castle_kingside | mv->castle_queenside){
 		if(mv->castle_kingside)
 			printf("Kingside Castle");
-		else
+		else if(mv->castle_queenside)
 			printf("Queenside Castle");
 	}
 	else {
@@ -270,7 +270,7 @@ struct movement * get_castle_movement ( bool is_short) {
 	}
 	else{
 		mv->castle_queenside = true;
-		mv-?castle_kingside = false;
+		mv->castle_kingside = false;
 
 	}
 	return mv;
@@ -411,15 +411,15 @@ int make_moves(struct gameboard * gb, int offset) {
 		for( j = 0 ; j < 2 ; j ++ ) {
 			if(games[offset].movs[i][j] == 0)
 				return 0;
+			print_move(games[offset].movs[i][j]);
 			bool ret = make_move( gb , games[offset].movs[i][j]);
 			if(!ret){
-				yyerror("Invalid move detected!");
-                                printf("Invalid move detected!");
+				yyerror("This move was invalid!");
 				print_move(games[offset].movs[i][j]);
 				return ERROR;
 			}
 			printf("Round %d\n", i);
-			print_move(games[offset].movs[i][j]);
+			
 		}
 	}
 	return 0;

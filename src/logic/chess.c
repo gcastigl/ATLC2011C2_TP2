@@ -380,7 +380,16 @@ static bool pawn_movement(struct gameboard* gameboard, struct piece* piece, stru
               || (piece->color == BLACK && piece->row == 7)
            )
     ){
-        checkmov = true;
+		
+		if(piece->color == WHITE && (check_for_piece(gameboard, piece->col, 3) || check_for_piece(gameboard, piece->col, 4))){
+			checkmov = false;
+		}
+		else if( piece->color == BLACK && (check_for_piece(gameboard, piece->col, 6) || check_for_piece(gameboard, piece->col, 5))) {
+			checkmov = false;
+		}
+		else{
+			checkmov = true;
+		}
     }
 
     if ((piece->color == WHITE && movement->row == 8)
