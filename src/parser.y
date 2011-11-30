@@ -39,22 +39,24 @@ void set_move ( int round, struct movement * mv, bool is_white);
 int make_moves (struct gameboard * gb, int offset);
 
 struct game {
-	struct options opts;
 	struct movement * movs [MAX_ROUNDS][2];
 
 };
 
 
 
+
+
 int curr_round = 0;
 int curr_game = 0;
+int curr_opts = 0;
 
 void update_options( int opts, char * str);
 
 enum piece_type piece_types[30] = {0};
 
 struct game games[MAX_GAMES] = {0};
-
+struct options ops[MAX_GAMES] = {0};
 
 %}
 
@@ -129,21 +131,20 @@ option:
            }
       }
     | INITIAL_RESULT_TOKEN FINALRESULT END_TOKEN {
-           games[curr_game].opts.result = $2;
+           ops[curr_opts].result = $2;
+			curr_opts ++;
       }
     | INITIAL_ROUND_TOKEN INTEGER END_TOKEN {
-			
-           games[curr_game].opts.round = $2;
+           ops[curr_opts].round = $2;
       }
 ;
 
 game:
       round SPACE move SPACE move SPACE game {assign_color($3, true); assign_color ( $5, false); set_move( $1, $3, true); set_move($1,$5,false); }
-    | round SPACE move SPACE FINALRESULT game     {assign_color($3, true); set_move($1, $3, true); }
+    | round SPACE move SPACE FINALRESULT     {assign_color($3, true); set_move($1, $3, true); }
+	| round SPACE move SPACE FINALRESULT NEXT_GAME program     {assign_color($3, true); set_move($1, $3, true); curr_game++; }
     | FINALRESULT                            {;}
-	| NEXT_GAME program						{curr_game++;}
 	| FINALRESULT NEXT_GAME program			{curr_game++;}
-    | {;}
     ;
 
 round:
@@ -305,7 +306,7 @@ int handle_and_verify_date ( int year, int month, int day ) {
   
     int days[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int valid = 1;
-	struct options * opts = &(games[curr_game].opts);
+	struct options * opts = ops + curr_opts;
     if ( month != -1 && day > days[month]) 
         valid = 0;
     if ( opts->month > 12 )
@@ -322,7 +323,7 @@ int handle_and_verify_date ( int year, int month, int day ) {
 void update_options(int opt, char * str) {
 
     char ** target;
-	struct options * opts = &(games[curr_game].opts);
+	struct options * opts = ops + curr_opts;
     switch(opt) {
         case EVENT_TOK: target = &(opts->event_name);break;
         case SITE_TOK: target = &(opts->site_name);break;
@@ -428,7 +429,7 @@ int make_moves(struct gameboard * gb, int offset) {
 
 int print_game( int offset ){
 
-	print_options(games[offset].opts);
+	print_options(ops[curr_game - offset]);
 	initialize();
 	struct gameboard * gm = new_game();
 	int ret; make_moves ( gm, offset);
@@ -450,10 +451,10 @@ int main( void ) {
 	}
 	printf("\n");
 	int i;
-	for( i = 0 ; i <= curr_game ; i ++ ){
+	for( i = curr_game ; i >= 0 ; i -- ){
 		int ret = print_game(i);
 		if( ret == ERROR) {
-			printf("Error parsing game number %d, check its movements' syntax\n", i + 1);
+			printf("Error parsing game number %d, check its movements' syntax\n", curr_game - i + 1);
 			return 1;
 		}
 	}
