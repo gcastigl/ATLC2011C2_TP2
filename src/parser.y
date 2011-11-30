@@ -306,17 +306,24 @@ int handle_and_verify_date ( int year, int month, int day ) {
 void update_options(int opt, char * str) {
 
     char ** target;
+	if(str == NULL){
+		return;
+	}
     switch(opt) {
         case EVENT_TOK: target = &(opts.event_name);break;
         case SITE_TOK: target = &(opts.site_name);break;
         case WHITE_TOK: target = &(opts.white_player);break;
         case BLACK_TOK: target = &(opts.black_player);break;
     }
-    
-    int len = strlen(str) + 1;
-    *target = malloc(len);
-    memcpy(*target, str, len);
-    free(str);
+    if(str == NULL){
+		*target = NULL;
+	}
+	else{
+		int len = strlen(str) + 1;
+		*target = malloc(len);
+		memcpy(*target, str, len);
+		free(str);
+	}
 }
 
 int get_result ( int white, int  black ) {
@@ -338,12 +345,27 @@ void yyerror(const char * s){
 //Debugging purposes
 
 void print_options( struct options o ) {
-    printf("Event: %s\n", o.event_name);
-    printf("Site: %s\n", o.site_name);
-    printf("White Player: %s\n", o.white_player);
-    printf("Black Player: %s\n", o.black_player);
-    printf("Round: %d\n", o.round);
-    printf("Year: %d, Month: %d, Day: %d\n", o.year, o.month, o.day);
+    printf("Event: %s\n", o.event_name == NULL ? "UNKNOWN" : o.event_name);
+    printf("Site: %s\n", o.site_name == NULL ? "UNKNOWN" : o.site_name);
+    printf("White Player: %s\n", o.white_player == NULL ? "UNKNOWN" : o.white_player);
+    printf("Black Player: %s\n", o.black_player == NULL ? "UNKNOWN" : o.black_player);
+    
+	if( o.round == -1 )
+		printf("Round unkown\n");
+	else
+		printf("Round: %d\n", o.round);
+	if( o.year == -1 ) 
+		printf("Year: Unknown,");
+	else
+		printf("Year: %d,", o.year);
+	if( o.month == -1 ) 
+		printf("Month: Unknown,");
+	else
+		printf("Month: %d,", o.month);
+	if( o.day == -1 ) 
+		printf("Day: Unknown\n");
+	else
+		printf("Day: %d\n", o.day);
 	printf("Result: ");
 	switch(o.result) {
 		case WHITE_WINS: printf("White wins");break;
@@ -391,10 +413,17 @@ void make_moves(struct gameboard * gb) {
 int main( void ) {
 	set_piece_types();
 	memset(movs, 0, sizeof(struct movement *) * 2 * MAX_ROUNDS);
-	initialize();
-        yyparse();
-	struct gameboard * gm = new_game();
+	
+    int ret = yyparse();
+	if( ret == YYENDERROR ){
+		printf("File has incorrect .pgn format, exitting\n");
+		return 1;
+
+	}
+	printf("\n");
 	print_options(opts);
+	initialize();
+	struct gameboard * gm = new_game();
 	make_moves(gm);
     return 0;
 }

@@ -53,7 +53,7 @@ TAG_WHITE_BEGIN   "[White \""
 TAG_BLACK_BEGIN   "[Black \""
 TAG_RESULT_BEGIN  "[Result \""
 
-TAG_CONTENT     [^"?]+
+TAG_CONTENT     [^"?\[]+
 
 TAG_UNKNOWN     [?]+
 
@@ -100,11 +100,16 @@ RESULT_DRAW     "1/2-1/2"
                         fflush(stdout);
                         return (STRING);
                       }
+{TAG_UNKNOWN}     {
+                        yylval.string = NULL;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+                        return (STRING);
+                      }
     
 }
 
 
-<DATE,ROUND_S>{
+<DATE>{
     {INTEGER}         {
                         yylval.num = atoi(yytext);
                        // printf("Parsed date piece: %d\n", yylval.num);
@@ -117,6 +122,22 @@ RESULT_DRAW     "1/2-1/2"
                       }
 }
 
+<ROUND_S>{
+
+	  {INTEGER}         {
+                        yylval.num = atoi(yytext);
+                       // printf("Parsed date piece: %d\n", yylval.num);
+                        return (INTEGER);
+                      }
+    "*"     {
+                        yylval.num = -1;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+                        return (INTEGER);
+                      }
+
+
+}
+
 <DATE>{
     {TAG_DATE_BEGIN}  {
                         return (INITIAL_DATE_TOKEN);
@@ -127,6 +148,16 @@ RESULT_DRAW     "1/2-1/2"
     {TAG_CLOSE}       {
                         BEGIN ROUND_S;
                         return (END_TOKEN);
+                      }
+	{INTEGER}         {
+                        yylval.num = atoi(yytext);
+                       // printf("Parsed date piece: %d\n", yylval.num);
+                        return (INTEGER);
+                      }
+    {TAG_UNKNOWN}     {
+                        yylval.num = -1;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+                        return (INTEGER);
                       }
 }
 
@@ -244,7 +275,8 @@ RESULT_DRAW     "1/2-1/2"
 .                   {
                         printf("Warning! Ignoring: %s\n", yytext);
                         fflush(stdout);
-                    }
+                    
+					}
 
 %%
 
