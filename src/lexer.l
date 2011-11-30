@@ -22,7 +22,7 @@ void yyerror(char* s);
 %}
 
 EOL           (\n|\r\n|\l\n)
-WHITESPACE    [\n\r\l\t ]
+WHITESPACE    ([\t ]|{EOL})
 COL           [a-h]
 CAPTURE       x
 DOT           "."
@@ -262,20 +262,19 @@ RESULT_DRAW     "1/2-1/2"
     {CASTLE_QUEENSIDE} {
                         return (LONGCASTLE);
                     }
-    {WHITESPACE}+   {
+    {WHITESPACE}   {
                         return (SPACE);
                     }
+	{EOL}{EOL}		{
+						BEGIN INITIAL;
+						return(NEXT_GAME);
+					}
 }
 
-{WHITESPACE}        {
-                        printf("Whitespace ignored\n");
-                        fflush(stdout);
-                    }
 
 .                   {
-                        printf("Warning! Ignoring: %s\n", yytext);
-                        fflush(stdout);
-                    
+                        printf("Found unexpected character %s\n", yytext);
+						return *yytext;
 					}
 
 %%
