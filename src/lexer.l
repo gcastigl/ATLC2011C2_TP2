@@ -70,7 +70,7 @@ RESULT_DRAW     "1/2-1/2"
 
 %%
 
-<INITIAL,SITE,BLACK,WHITE,ROUND_S>{
+<INITIAL,SITE,BLACK,WHITE>{
 
 
 .			{printf("Unexpected character \"%c\"\n", *yytext );return *yytext;}
