@@ -45,6 +45,11 @@ CASTLE_QUEENSIDE  "O-O-O"
 %x GAME
 %x GAME_PRE
 
+%x SITE_STR
+%x INITIAL_STR
+%x WHITE_STR
+%x BLACK_STR
+
 TAG_EVENT_BEGIN   "[Event \""
 TAG_SITE_BEGIN    "[Site \""
 TAG_DATE_BEGIN    "[Date \""
@@ -65,11 +70,18 @@ RESULT_DRAW     "1/2-1/2"
 
 %%
 
+<INITIAL,SITE,BLACK,WHITE,RESULT>{
+
+
+.			{printf("Unexpected character \"%c\"\n", *yytext );return *yytext;}
+
+}
 
 <INITIAL>{
     {TAG_EVENT_BEGIN} {
                         yylval.num = EVENT_TOK;
                         //printf("Begin of initial\n");
+						BEGIN INITIAL_STR;
                         return (INITIAL_TOKEN);
                       }
     {TAG_CLOSE}       {
@@ -82,6 +94,7 @@ RESULT_DRAW     "1/2-1/2"
 <SITE>{
     {TAG_SITE_BEGIN}  {
                         yylval.num = SITE_TOK;
+						BEGIN SITE_STR;
                         return (INITIAL_TOKEN);
                       }
     {TAG_CLOSE}       {
@@ -90,24 +103,74 @@ RESULT_DRAW     "1/2-1/2"
                       }
 }
 
-<INITIAL,SITE,WHITE,BLACK>{
+
+
+<INITIAL_STR>{
     {TAG_CONTENT}     {
                         yylval.string = malloc(yyleng+1);
                         memcpy(yylval.string, yytext, yyleng);
                         yylval.string[yyleng] = 0;
-                        //printf("Content event: %s\n", yytext);
-                        //printf("Content length: %d\n", yyleng);
-                        fflush(stdout);
+						BEGIN INITIAL;
                         return (STRING);
                       }
 {TAG_UNKNOWN}     {
                         yylval.string = NULL;
-                        //printf("Parsed date piece: %d\n", yylval.num);
+						BEGIN INITIAL;
                         return (STRING);
                       }
     
 }
 
+<SITE_STR>{
+    {TAG_CONTENT}     {
+                        yylval.string = malloc(yyleng+1);
+                        memcpy(yylval.string, yytext, yyleng);
+                        yylval.string[yyleng] = 0;
+						BEGIN SITE;
+                        return (STRING);
+                      }
+{TAG_UNKNOWN}     {
+                        yylval.string = NULL;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+						BEGIN SITE;
+                        return (STRING);
+                      }
+    
+}
+
+<WHITE_STR>{
+    {TAG_CONTENT}     {
+                        yylval.string = malloc(yyleng+1);
+                        memcpy(yylval.string, yytext, yyleng);
+                        yylval.string[yyleng] = 0;
+						BEGIN WHITE;
+                        return (STRING);
+                      }
+{TAG_UNKNOWN}     {
+                        yylval.string = NULL;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+						BEGIN WHITE;
+                        return (STRING);
+                      }
+    
+}
+
+<BLACK_STR>{
+    {TAG_CONTENT}     {
+                        yylval.string = malloc(yyleng+1);
+                        memcpy(yylval.string, yytext, yyleng);
+                        yylval.string[yyleng] = 0;
+						BEGIN BLACK;
+                        return (STRING);
+                      }
+{TAG_UNKNOWN}     {
+                        yylval.string = NULL;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+						BEGIN BLACK;
+                        return (STRING);
+                      }
+    
+}
 
 <DATE>{
     {INTEGER}         {
@@ -134,6 +197,8 @@ RESULT_DRAW     "1/2-1/2"
                         //printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
+
+	[^*]		{printf("Unexpected character \"%c\"\n", *yytext);return *yytext;}
 
 
 }
@@ -174,6 +239,7 @@ RESULT_DRAW     "1/2-1/2"
 <WHITE>{
     {TAG_WHITE_BEGIN} {
                         yylval.num = WHITE_TOK;
+						BEGIN WHITE_STR;
                         return (INITIAL_TOKEN);
                       }
     {TAG_CLOSE}       {
@@ -185,6 +251,7 @@ RESULT_DRAW     "1/2-1/2"
 <BLACK>{
     {TAG_BLACK_BEGIN} {
                         yylval.num = BLACK_TOK;
+						BEGIN BLACK_STR;
                         return (INITIAL_TOKEN);
                       }
     {TAG_CLOSE}       {
