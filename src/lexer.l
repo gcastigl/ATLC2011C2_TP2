@@ -70,7 +70,7 @@ RESULT_DRAW     "1/2-1/2"
 
 %%
 
-<INITIAL,SITE,BLACK,WHITE,RESULT>{
+<INITIAL,SITE,BLACK,WHITE,ROUND_S>{
 
 
 .			{printf("Unexpected character \"%c\"\n", *yytext );return *yytext;}
@@ -173,38 +173,9 @@ RESULT_DRAW     "1/2-1/2"
 }
 
 <DATE>{
-    {INTEGER}         {
-                        yylval.num = atoi(yytext);
-                       // printf("Parsed date piece: %d\n", yylval.num);
-                        return (INTEGER);
-                      }
-    {TAG_UNKNOWN}     {
-                        yylval.num = -1;
-                        //printf("Parsed date piece: %d\n", yylval.num);
-                        return (INTEGER);
-                      }
-}
-
-<ROUND_S>{
-
-	  {INTEGER}         {
-                        yylval.num = atoi(yytext);
-                       // printf("Parsed date piece: %d\n", yylval.num);
-                        return (INTEGER);
-                      }
-    "*"     {
-                        yylval.num = -1;
-                        //printf("Parsed date piece: %d\n", yylval.num);
-                        return (INTEGER);
-                      }
-
-	[^*]		{printf("Unexpected character \"%c\"\n", *yytext);return *yytext;}
 
 
-}
-
-<DATE>{
-    {TAG_DATE_BEGIN}  {
+ {TAG_DATE_BEGIN}  {
                         return (INITIAL_DATE_TOKEN);
                       }
     {DOT}             {
@@ -216,25 +187,38 @@ RESULT_DRAW     "1/2-1/2"
                       }
 	{INTEGER}         {
                         yylval.num = atoi(yytext);
-                       // printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
     {TAG_UNKNOWN}     {
                         yylval.num = -1;
-                        //printf("Parsed date piece: %d\n", yylval.num);
                         return (INTEGER);
                       }
 }
 
 <ROUND_S>{
-    {TAG_ROUND_BEGIN} {
+
+	  {INTEGER}         {
+                        yylval.num = atoi(yytext);
+                       // printf("Parsed date piece: %d\n", yylval.num);
+                        return (INTEGER);
+                      }
+
+  {TAG_UNKNOWN}     {
+                        yylval.num = -1;
+                        //printf("Parsed date piece: %d\n", yylval.num);
+                        return (INTEGER);
+                      }
+ {TAG_ROUND_BEGIN} {
                         return (INITIAL_ROUND_TOKEN);
                       }
     {TAG_CLOSE}       {
                         BEGIN WHITE;
                         return (END_TOKEN);
                       }
+
+
 }
+
 
 <WHITE>{
     {TAG_WHITE_BEGIN} {
@@ -265,10 +249,15 @@ RESULT_DRAW     "1/2-1/2"
                         return (INITIAL_RESULT_TOKEN);
                       }
 
-    {TAG_UNKNOWN}     {
+
+    "*"     {
                         yylval.ch = -1;
                         return (FINALRESULT);
                       }
+
+	[^*]		{printf("Unexpected character \"%c\"\n", *yytext);return *yytext;}
+
+
     {TAG_CLOSE}       {
                         BEGIN GAME_PRE;
                         return (END_TOKEN);
